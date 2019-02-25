@@ -13,6 +13,9 @@ The following naming conventions apply:
 #### Shorthand to be used with providing aliases
 `cn_mailsim`
 
+# Usage
+## Requirements
+This package requires the [lib-cn_core](https://github.com/coon-js/lib-cn_core) package of the [coon.js](https://github.com/coon-js) project.
 
 # Usage
 Simply update the app.json of the conjoon-application

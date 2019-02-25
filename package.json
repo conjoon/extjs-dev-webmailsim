@@ -192,7 +192,8 @@
          */
         "requires": [
             "sencha-core",
-            "ux"
+            "ux",
+            "lib-cn_core"
         ]
     }
 }

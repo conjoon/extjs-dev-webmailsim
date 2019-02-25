@@ -13,6 +13,7 @@ harness.configure({
         /**
          * Requirements
          */
+        'coon.core' : '../../lib-cn_core/src',
         'conjoon.dev.cn_mailsim'   : '../src'
     },
     preload        : [
@@ -25,6 +26,11 @@ harness.configure({
 harness.start({
         group : 'universal',
         items : [{
+            group : 'app',
+            items : [
+                'src/app/PackageControllerTest.js'
+            ]
+        }, {
             group : 'data',
             items : [{
                 group : 'mail',
