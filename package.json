@@ -19,6 +19,8 @@
           */
          "namespace": "conjoon.dev.cn_mailsim",
 
+         "coon-js" : {"packageController" : true},
+
         /**
          * The package type.
          *

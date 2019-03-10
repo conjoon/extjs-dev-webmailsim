@@ -74,14 +74,14 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim', {
                 return ret;
             }
 
-            ret.responseText = Ext.JSON.encode({
-                success       : true
-            });
-
             Ext.Array.forEach(me.responseProps, function (prop) {
                 if (prop in me) {
                     ret[prop] = me[prop];
                 }
+            });
+
+            ret.responseText = Ext.JSON.encode({
+                success       : true
             });
 
             return ret;

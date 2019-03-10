@@ -103,6 +103,12 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
                 {hasAttachments : 1}
             );
 
+            Ext.Array.forEach(me.responseProps, function (prop) {
+                if (prop in me) {
+                    ret[prop] = me[prop];
+                }
+            });
+
             ret.responseText = Ext.JSON.encode({
                 data : {
                     id                  : rec.id,
@@ -113,11 +119,6 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
                 }
             });
 
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
             return ret;
         },
 

@@ -83,15 +83,16 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 return {success : false};
             }
 
-            ret.responseText = Ext.JSON.encode({success : true, data:[]});
-
             Ext.Array.forEach(me.responseProps, function (prop) {
                 if (prop in me) {
                     ret[prop] = me[prop];
                 }
             });
 
+            ret.responseText = Ext.JSON.encode({success : true, data:[]});
 
+
+            Ext.apply(me, ret);
             return ret;
         },
 
@@ -139,6 +140,12 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
             draft = MessageTable.createMessageDraft(draft.mailAccountId, draft.mailFolderId, draft);
 
+            Ext.Array.forEach(me.responseProps, function (prop) {
+                if (prop in me) {
+                    ret[prop] = me[prop];
+                }
+            });
+
             ret.responseText = Ext.JSON.encode({
                 success: true,
                 data : {
@@ -146,13 +153,6 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                     mailFolderId: draft.mailFolderId,
                     mailAccountId: draft.mailAccountId
                 }});
-
-
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
 
             return ret;
 
@@ -186,15 +186,15 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                     result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
                 }
 
-                ret.responseText = Ext.JSON.encode({
-                    success: true,
-                    data: result
-                });
-
                 Ext.Array.forEach(me.responseProps, function (prop) {
                     if (prop in me) {
                         ret[prop] = me[prop];
                     }
+                });
+
+                ret.responseText = Ext.JSON.encode({
+                    success: true,
+                    data: result
                 });
 
                 return ret;
@@ -246,16 +246,17 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 }
             }
 
-            ret.responseText = Ext.JSON.encode({
-                success: true,
-                data : values
-            });
-
             Ext.Array.forEach(me.responseProps, function (prop) {
                 if (prop in me) {
                     ret[prop] = me[prop];
                 }
             });
+
+            ret.responseText = Ext.JSON.encode({
+                success: true,
+                data : values
+            });
+
 
             return ret;
 
@@ -407,20 +408,21 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 textHtml : body.textHtml
             });
 
-            ret.responseText = Ext.JSON.encode({success : true, data: {
-                id        : newRec.id,
-                mailFolderId  : newRec.mailFolderId,
-                mailAccountId : newRec.mailAccountId,
-                textPlain : newRec.textPlain,
-                textHtml  : newRec.textHtml
-            }
-            });
-
             Ext.Array.forEach(me.responseProps, function (prop) {
                 if (prop in me) {
                     ret[prop] = me[prop];
                 }
             });
+
+            ret.responseText = Ext.JSON.encode({success : true, data: {
+                    id        : newRec.id,
+                    mailFolderId  : newRec.mailFolderId,
+                    mailAccountId : newRec.mailAccountId,
+                    textPlain : newRec.textPlain,
+                    textHtml  : newRec.textHtml
+                }
+            });
+
             return ret;
         },
 
