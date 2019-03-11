@@ -39,7 +39,7 @@
          *
          *    "toolkit": "classic",
          */
-        "toolkit": "",
+        "toolkit": "classic",
 
          /**
           * The author of the package.
@@ -193,9 +193,8 @@
          *      }
          */
         "requires": [
-            "sencha-core",
-            "ux",
-            "lib-cn_core"
+            "lib-cn_core",
+            "ux"
         ]
     }
 }
