@@ -19,15 +19,24 @@ This package requires the [lib-cn_core](https://github.com/coon-js/lib-cn_core) 
 
 # Usage
 Simply update the app.json of the conjoon-application
-by specifying this package in the `requires`-property:
+by specifying this package in the `uses`-property in either the `development` and/or `prodution` section:
 
 *Example:*
 ````javascript
-"requires": [
-        "font-awesome",
-        "lib-cn_comp",
-        "app-cn_mail",
-        "dev-cn_mailsim",
-        "theme-cn_default"
-    ]
+"development": {
+        "uses" : [
+            "app-cn_imapuser",
+            "app-cn_mail",
+            "dev-cn_mailsim"
+        ]
+},
+"production": {
+        "uses" : [
+            "app-cn_imapuser",
+            "app-cn_mail"
+        ]
+}
 ````
+
+Notice how in the example above all backend requests made by the [app-cn_mail](https://github.com/conjoon/app-cn_mail) package
+will be intercepted by the backend-mocks of the `dev-cn_mailsim` package when using the development-version.
