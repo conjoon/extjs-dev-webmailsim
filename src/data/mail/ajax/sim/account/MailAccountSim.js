@@ -71,9 +71,12 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.account.MailAccountSim', {
         doGet: function(ctx) {
             const me = this;
 
+
+
             let ret = {};
 
             ret.responseText = Ext.JSON.encode({
+                success : true,
                 data : accounts
             });
 
@@ -136,7 +139,8 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.account.MailAccountSim', {
 
 
         }
-
     });
+
+
 
 });

@@ -125,8 +125,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim', {
         url : /cn_mail\/MailAccounts\/(.+)\/MailFolders(\/.*)?/im,
 
         doGet: function(ctx) {
+
             const me            = this,
-                  mailAccountId = ctx.params.mailAccountId;
+                  keys = me.extractCompoundKey(ctx.url),
+                  mailAccountId = keys.mailAccountId;
 
             ret = {};
 
@@ -150,7 +152,33 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim', {
             return ret;
 
 
+        },
+
+
+        /**
+         * Returns a numeric array with the following values:
+         * mailAccountId, mailFolderId, id
+         *
+         * @param url
+         * @returns {*[]}
+         */
+        extractCompoundKey : function(url) {
+
+            let pt = url.split('/'),
+                mailAccountId;
+
+
+            mailAccountId = pt.pop();
+            mailAccountId = pt.pop();
+
+            return {
+                mailAccountId : decodeURIComponent(mailAccountId)
+            };
         }
+
+
+
+
     });
 
 });
