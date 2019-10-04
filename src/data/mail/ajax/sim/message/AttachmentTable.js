@@ -45,7 +45,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
               newKey = [
                   mailAccountId,
                   moveInfo.mailFolderId ? moveInfo.mailFolderId : mailFolderId,
-                  parentMessageItemId
+                  moveInfo.parentMessageItemId ? moveInfo.parentMessageItemId : parentMessageItemId
               ].join('-');
 
         if (key === newKey) {
@@ -74,8 +74,16 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
         me.attachments[newKey] = attachments;
 
-        for (let i = 0, len = me.attachments[newKey].length; i < len; i++) {
-            me.attachments[newKey][i]['mailFolderId'] = moveInfo.mailFolderId;
+        for (var i in me.attachments[newKey]) {
+            if (!me.attachments[newKey].hasOwnProperty(i)) {
+                continue;
+            }
+            if (moveInfo.mailFolderId) {
+                me.attachments[newKey][i]['mailFolderId'] = moveInfo.mailFolderId;
+            }
+            if (moveInfo.parentMessageItemId) {
+                me.attachments[newKey][i]['parentMessageItemId'] = moveInfo.parentMessageItemId;
+            }
         }
 
         return me.attachments[newKey];
@@ -99,11 +107,19 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
         me.attachments[key].push(attachmentData);
 
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-            mailAccountId, mailFolderId, parentMessageItemId, {}
+        let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+            mailAccountId, mailFolderId, parentMessageItemId, {}, true
         );
+if (!itemData)debugger;
+        me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {
+            parentMessageItemId : itemData.id
+        });
 
-        return attachmentData;
+        return Ext.apply(attachmentData, {
+            mailAccountId       : itemData.mailAccountId,
+            mailFolderId        : itemData.mailFolderId,
+            parentMessageItemId : itemData.id
+        });
     },
 
     deleteAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, id) {
@@ -121,26 +137,53 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
             me.attachments = {};
         }
 
-        if (me.attachments[key]) {
-            let attach = me.attachments[key];
-            for (let i = attach.length - 1; i >= 0; i--) {
-                if (attach[i].id == id) {
-                    found++;
-                    attach.splice(i, 1);
+        for (let a in me.attachments) {
+            let attChilds = me.attachments[a];
+
+            for (let i in attChilds) {
+                let att = attChilds[i];
+                if (att.parentMessageItemId == parentMessageItemId &&
+                    att.mailFolderId == mailFolderId &&
+                    att.mailAccountId == mailAccountId &&
+                    att.id == id) {
+                    found = 1;
+                    delete me.attachments[a][i];
+                    break;
                 }
             }
         }
 
-        if (found > 0) {
-            conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-                mailAccountId, mailFolderId, parentMessageItemId, {});
-            if (me.attachments[key].length == 0) {
-                me.attachments[key] = null;
+        /*
+        if (me.attachments[key]) {
+            let attach = me.attachments[key];
+            for (var i in attach) {
+                if (!attach.hasOwnProperty(i)) {
+                    continue;
+                }
+                if (attach[i].id == id) {
+                    found++;
+                    delete attach[i];
+                }
             }
+        }*/
+
+        if (found > 0) {
+            let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+                mailAccountId, mailFolderId, parentMessageItemId, {}, true);
+
+            me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {parentMessageItemId : itemData.id});
+
+            return {
+                parentMessageItemId : itemData.id,
+                mailAccountId       : itemData.mailAccountId,
+                mailFolderId        : itemData.mailFolderId,
+            };
         }
 
-        return found;
+        return false;
+
     },
+
 
 
     getAttachments : function(mailAccountId, mailFolderId, parentMessageItemId) {
@@ -152,15 +195,35 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
         let wasEmpty = false;
 
         if (!me.attachments) {
-            wasEmpty = true;
             me.attachments = {};
         }
 
-        if (me.attachments.hasOwnProperty(key)) {
-            return me.attachments[key];
+        let result = null;
+
+        for (var a in me.attachments) {
+            if (!me.attachments.hasOwnProperty(a)) {
+                continue;
+            }
+
+            for (var i in me.attachments[a]) {
+                if (!me.attachments[a].hasOwnProperty(i)) {
+                    continue;
+                }
+                if (me.attachments[a][i].mailAccountId === mailAccountId &&
+                    me.attachments[a][i].mailFolderId === mailFolderId &&
+                    me.attachments[a][i].parentMessageItemId === parentMessageItemId) {
+                    if (result === null) {
+                        result = [];
+                    }
+
+                    result.push(me.attachments[a][i]);
+                }
+            }
+
+
         }
 
-        return null;
+        return result;
     },
 
 
@@ -229,7 +292,13 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
         let ind = 0;
 
         for (let messageItemId in me.attachments) {
-            for (let i = 0, len = me.attachments[messageItemId].length; i < len; i++) {
+            if (!me.attachments.hasOwnProperty(messageItemId)) {
+                continue;
+            }
+            for (let i in me.attachments[messageItemId]) {
+                if (!me.attachments[messageItemId].hasOwnProperty(i)) {
+                    continue;
+                }
                 if (ind === pos) {
                     return me.attachments[messageItemId][i];
                 }
@@ -251,13 +320,23 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
             me.attachments = {};
         }
 
+        for (var a in me.attachments) {
+            if (!me.attachments.hasOwnProperty(a)) {
+                continue;
+            }
 
-        if (me.attachments[key]) {
-            for (var i = 0, len = me.attachments[key].length; i < len; i++) {
-                if (me.attachments[key][i].id == attachmentId) {
-                    return me.attachments[key][i];
+            for (var i in me.attachments[a]) {
+                if (!me.attachments[a].hasOwnProperty(i)) {
+                    continue;
                 }
-            };
+            }
+
+            if (me.attachments[a][i].mailAccountId === mailAccountId &&
+                me.attachments[a][i].mailFolderId === mailFolderId &&
+                me.attachments[a][i].parentMessageItemId === parentMessageItemId &&
+                me.attachments[a][i].id === attachmentId) {
+                return me.attachments[a][i];
+            }
         }
 
         return null;

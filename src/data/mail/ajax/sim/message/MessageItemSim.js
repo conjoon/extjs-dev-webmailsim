@@ -179,8 +179,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                     values[i] = ctx.xhr.options.jsonData[i];
                 }
 
+                console.log("PUT " + target, values);
+
+
                 if (target === 'MessageBody') {
-                    console.log("PUT MESSAGE BODY");
                     result = MessageTable.updateMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, values);
                 } else {
                     result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
@@ -201,6 +203,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
             }
 
 
+            // This is where we trigger an idchange
             console.log("PUT MessageDraft", ctx.xhr.options.jsonData);
 
             // MESSAGE DRAFT
@@ -225,17 +228,18 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
             }
 
-            MessageTable.updateMessageDraft(
+            let updatedDraft = MessageTable.updateMessageDraft(
                 keys.mailAccountId,
                 keys.mailFolderId,
                 keys.id,
-                values
+                values,
+                true
             );
 
             let draft = MessageTable.getMessageDraft(
-                ctx.xhr.options.jsonData.mailAccountId,
-                ctx.xhr.options.jsonData.mailFolderId,
-                ctx.xhr.options.jsonData.id
+                updatedDraft.mailAccountId,
+                updatedDraft.mailFolderId,
+                updatedDraft.id
             );
 
             delete values.localId;
@@ -257,6 +261,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 data : values
             });
 
+            console.log("PUT MessageDraft, response: ", values);
 
             return ret;
 
@@ -344,13 +349,15 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
             } else if (!id) {
 
-                var items = Ext.Array.filter(
-                    messageItems,
-                    function(messageItem) {
-                        return messageItem.mailAccountId === keys.mailAccountId &&
-                               messageItem.mailFolderId === keys.mailFolderId;
+                var items = [];
+                for (let i in messageItems) {
+                    let messageItem = messageItems[i];
+                    if (messageItem.mailAccountId === keys.mailAccountId &&
+                    messageItem.mailFolderId === keys.mailFolderId) {
+                        items.push(messageItem);
                     }
-                );
+                }
+
 
                 return items;
             } else {
@@ -414,15 +421,18 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 }
             });
 
-            ret.responseText = Ext.JSON.encode({success : true, data: {
+            let retVal = {success : true, data: {
                     id        : newRec.id,
                     mailFolderId  : newRec.mailFolderId,
                     mailAccountId : newRec.mailAccountId,
                     textPlain : newRec.textPlain,
                     textHtml  : newRec.textHtml
                 }
-            });
+            };
 
+            ret.responseText = Ext.JSON.encode(retVal);
+
+            console.log("POSTED MessageBody", retVal);
             return ret;
         },
 

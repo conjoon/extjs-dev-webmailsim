@@ -49,23 +49,39 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
 
             console.log("DELETE Attachment", ctx.xhr.options);
 
-            let me  = this,
+            let me = this,
                 keys = me.extractCompoundKey(ctx.url),
                 ret = {}, found;
 
 
-            found = AttachmentTable.deleteAttachment(
+            let itemData = AttachmentTable.deleteAttachment(
                 keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
 
-            ret.responseText = Ext.JSON.encode({
-                success :true
-            });
+            let retVal;
+
+            if (itemData == false) {
+                retVal = {
+                    success: false
+                };
+            } else {
+                retVal = {
+                    success: true,
+                    data: {
+                        id: keys.id,
+                        parentMessageItemId: itemData.parentMessageItemId,
+                        mailAccountId: itemData.mailAccountId,
+                        mailFolderId: itemData.mailFolderId
+                    }
+                };
+            }
+            ret.responseText = Ext.JSON.encode(retVal);
 
             Ext.Array.forEach(me.responseProps, function (prop) {
                 if (prop in me) {
                     ret[prop] = me[prop];
                 }
             });
+            console.log("DELETING ATTACHMENT, response: ", retVal)
             return ret;
 
         },
@@ -97,9 +113,9 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
             );
 
             conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-                keys.mailAccountId,
-                keys.mailFolderId,
-                keys.parentMessageItemId,
+                rec.mailAccountId,
+                rec.mailFolderId,
+                rec.parentMessageItemId,
                 {hasAttachments : 1}
             );
 
@@ -109,7 +125,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
                 }
             });
 
-            ret.responseText = Ext.JSON.encode({
+            let retVal = {
                 data : {
                     id                  : rec.id,
                     parentMessageItemId : rec.parentMessageItemId,
@@ -117,8 +133,11 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
                     mailFolderId        : rec.mailFolderId,
                     success             : true
                 }
-            });
+            };
 
+            ret.responseText = Ext.JSON.encode(retVal);
+
+            console.log("POSTED Attachment, response: ", retVal)
             return ret;
         },
 

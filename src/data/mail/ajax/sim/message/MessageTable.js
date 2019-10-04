@@ -34,12 +34,16 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable'
     ],
 
+
+    ITEM_LENGTH : 100,
+
     messageBodies : null,
 
     messageItems : null,
 
     baseMessageItems : null,
 
+    DRAFT_KEY : 0,
 
     buildRandomNumber : function(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -102,12 +106,19 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
         let items = me.messageItems;
         console.log("REMOVING", record.getId())
-        for (var i = 0, len = items.length; i < len; i++) {
+
+        for (var i in items) {
+
+            if (!items.hasOwnProperty(i)) {
+                continue;
+            }
+
             if (items[i].id === record.getId()) {
-                items.splice(i, 1);
-                console.log("REMOVED, NEW LENGTH ", items.length)
+                delete items[i];
+                console.log("REMOVED");
                 return;
             }
+
         }
     },
 
@@ -170,7 +181,12 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
         // force to refresh the date
         if (skipUpdate !== true) {
-            me.updateAllItemData(mailAccountId, mailFolderId, id, {});
+
+            let item = me.updateAllItemData(mailAccountId, mailFolderId, id, {}, true);
+
+            conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+                mailAccountId, mailFolderId, id, {parentMessageItemId : item.id}
+            );
         }
 
         return message;
@@ -184,34 +200,23 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
     peekMessageBody : function(mailAccountId, mailFolderId, id) {
 
+        const me = this;
+
         if (arguments.length !== 3) {
             Ext.raise("Unexpected missing arguments");
         }
 
-        var me = this,
-            key = mailAccountId + '-' + mailFolderId + '-' + id,
-            message;
-
-
-        if (!me.messageBodies) {
-            me.messageBodies = {};
-        }
-
-        if (me.messageBodies[key]) {
-            return true;
-        }
-
-        return false;
+        return me.getMessageBody(mailAccountId, mailFolderId, id, false) !== null;
     },
 
-    getMessageBody : function(mailAccountId, mailFolderId, id) {
+    getMessageBody : function(mailAccountId, mailFolderId, id, autoCreate = true) {
 
-        if (arguments.length !== 3) {
+        if (arguments.length < 3) {
             Ext.raise("Unexpected missing arguments");
         }
 
         var me = this,
-            key = mailAccountId + '-' + mailFolderId + '-' + id,
+            key = Ext.id(),
             message;
 
 
@@ -219,8 +224,19 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             me.messageBodies = {};
         }
 
-        if (me.messageBodies[key]) {
-            return me.messageBodies[key];
+        for (let i in me.messageBodies) {
+            if (!me.messageBodies.hasOwnProperty(i)) {
+                continue;
+            }
+            if (me.messageBodies[i]['mailAccountId'] === mailAccountId &&
+                me.messageBodies[i]['mailFolderId'] === mailFolderId &&
+                me.messageBodies[i]['id'] === id) {
+                return me.messageBodies[i];
+            }
+        }
+
+        if (autoCreate === false) {
+            return null;
         }
 
         message = this.messages[me.buildRandomNumber(0, 2)];
@@ -236,24 +252,52 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         return me.messageBodies[key];
     },
 
-    getNextMessageDraftKey : function() {
-        var me = this;
 
-        return (me.getMessageDrafts().length + 1) + '';
+    /**
+     * Computes the next DRAFT_KEY used for identifying a draft.
+     * @returns {string}
+     */
+    getNextMessageDraftKey : function() {
+        var me = this,
+            drafts = me.getMessageDrafts(),
+            items  = me.getMessageItems(),
+            key = this.DRAFT_KEY, draftKey = 0, itemKey = 0;
+
+        for (var i in drafts) {
+            if (!drafts.hasOwnProperty(i)) {
+                continue;
+            }
+            draftKey++;
+        }
+
+        for (var i in items) {
+            if (!items.hasOwnProperty(i)) {
+                continue;
+            }
+            itemKey++;
+        }
+
+        key = Math.max(draftKey, itemKey, me.ITEM_LENGTH, this.DRAFT_KEY);
+
+        this.DRAFT_KEY = ++key;
+
+        return this.DRAFT_KEY + '';
     },
 
 
     getMessageDraft : function(mailAccountId, mailFolderId, id) {
 
         if (arguments.length !== 3) {
-            debugger;
             Ext.raise("Unexpected missing arguments");
         }
 
         var me     = this,
             drafts = me.getMessageDrafts();
 
-        for (var i = 0, len = drafts.length; i < len; i++) {
+        for (var i in drafts) {
+            if (!drafts.hasOwnProperty(i)) {
+                continue;
+            }
             if (drafts[i]['mailAccountId'] == mailAccountId &&
                 drafts[i]['mailFolderId'] == mailFolderId &&
                 drafts[i]['id'] == id) {
@@ -275,16 +319,20 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             return me.messageDrafts;
         }
 
-        for (var i = 0; i < baseMessageItems.length; i++) {
+        for (var i in me.baseMessageItems) {
+
+            if (!me.baseMessageItems.hasOwnProperty(i)) {
+                continue;
+            }
 
             var bccAddresses = me.buildAddresses('bcc', i);
 
-            messageDrafts.push(Ext.apply({
+            messageDrafts[Ext.id()] = Ext.apply({
                 bcc     : bccAddresses,
                 replyTo : i !== 0 && me.buildRandomNumber(0, 1)
                           ? sender[me.buildRandomNumber(0, 5)]
                           : undefined
-            }, baseMessageItems[i]));
+            }, baseMessageItems[i]);
 
         }
 
@@ -294,16 +342,31 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
     },
 
 
-    updateMessageDraft : function(mailAccountId, mailFolderId, id, values) {
+    /**
+     *
+     * @param mailAccountId
+     * @param mailFolderId
+     * @param id
+     * @param values
+     * @param changeId true to create a new id for the draft, virtually removing the old.
+     * This is for mocking IMAP behavior and their id changes
+     */
+    updateMessageDraft : function(mailAccountId, mailFolderId, id, values, changeId = false) {
 
-        if (arguments.length !== 4) {
+        if (arguments.length < 3) {
             Ext.raise("Unexpected missing arguments");
         }
 
 
         var me = this;
 
-        me.updateAllItemData(mailAccountId, mailFolderId, id, values);
+        let draft = me.updateAllItemData(mailAccountId, mailFolderId, id, values, changeId);
+
+        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+            mailAccountId, mailFolderId, id, {parentMessageItemId : draft.id}
+        );
+
+        return draft;
 
     },
 
@@ -316,7 +379,13 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
         var me = this;
 
-        return me.updateAllItemData(mailAccountId, mailFolderId, id, values);
+        let item = me.updateAllItemData(mailAccountId, mailFolderId, id, values);
+
+        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+            mailAccountId, mailFolderId, id, {parentMessageItemId : item.id}
+        );
+
+        return item;
     },
 
 
@@ -340,42 +409,51 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         mb.textPlain = "";
         mb.textHtml = "";
 
-        messageDrafts.push(Ext.apply(draftData, {
+        messageDrafts[id] = Ext.apply(draftData, {
             messageId       : messageId,
             id              : id,
             mailFolderId    : mailFolderId,
             mailAccountId   : mailAccountId,
             date            : date
-        }));
+        });
 
-        messageItems.push(Ext.apply(draftData, {
+        messageItems[id] = Ext.apply(draftData, {
             messageId       : messageId,
             id              : id,
             mailFolderId    : mailFolderId,
             mailAccountId   : mailAccountId,
             date            : date
-        }));
+        });
 
-        me.baseMessageItems.push(Ext.apply(draftData, {
+        me.baseMessageItems[id] = Ext.apply(draftData, {
             messageId       : messageId,
             id              : id,
             mailFolderId    : mailFolderId,
             mailAccountId   : mailAccountId,
             date            : date
-        }));
+        });
 
 
         // re init
         me.getMessageItems();
         me.getMessageDrafts();
 
-        return messageDrafts[messageDrafts.length - 1];
+        return messageDrafts[id];
     },
 
 
-    updateAllItemData : function(mailAccountId, mailFolderId, id, values) {
+    /**
+     *
+     * @param mailAccountId
+     * @param mailFolderId
+     * @param id
+     * @param values
+     * @param idChange true to change the item and its associations under a new id
+     * @returns {*}
+     */
+    updateAllItemData : function(mailAccountId, mailFolderId, id, values, idChange = false) {
 
-        if (arguments.length !== 4) {
+        if (arguments.length < 4) {
             Ext.raise("Unexpected missing arguments");
         }
 
@@ -427,21 +505,21 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
         for (var i = 0, len = dataItems.length; i < len; i++) {
 
-            item = dataItems[i];
+            var currItem = dataItems[i];
 
             // possible that we landed from DraftAttachment Test here and that
             // items are not existing
-            if (!item) {
+            if (!currItem) {
                 continue;
             }
 
             if (skipDate === false) {
-                item['date'] = Ext.util.Format.date(new Date(), 'Y-m-d H:i');
+                currItem['date'] = Ext.util.Format.date(new Date(), 'Y-m-d H:i');
             }
 
             for (var prop in values) {
 
-                if (!item.hasOwnProperty(prop)) {
+                if (!currItem.hasOwnProperty(prop)) {
                     // we are updating an existing item with properties that might not
                     // existed previously - dont skip!
                     //continue;
@@ -453,13 +531,13 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
                     case 'bcc':
                     case 'from':
                         if (Ext.isString(values[prop]))
-                        item[prop] = Ext.JSON.decode(values[prop]);
+                            currItem[prop] = Ext.JSON.decode(values[prop]);
                         break;
                     case 'date':
                         // already set above
                         break;
                     default:
-                        item[prop] = values[prop];
+                        currItem[prop] = values[prop];
                         break;
                 }
 
@@ -467,34 +545,112 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             }
 
         }
+        if (idChange) {
+            let newKey = me.getNextMessageDraftKey();
+            me.changeIdFor(mailAccountId, mailFolderId, id, newKey);
+        }
+
+
         return item;
     },
 
 
-    getMessageItemAt : function(pos) {
+    changeIdFor : function(mailAccountId, mailFolderId, id, newKey) {
 
         const me = this;
 
-        return me.getMessageItems()[pos];
+        let messageItems  = me.getMessageItems(),
+            messageDrafts = me.getMessageDrafts(),
+            messageBodies = me.messageBodies,
+            i, item, draft, body;
+
+        for (i in messageItems) {
+            if (!messageItems.hasOwnProperty(i)) {
+                continue;
+            }
+            item = messageItems[i];
+            if (item['mailAccountId'] === mailAccountId &&
+                item['mailFolderId'] === mailFolderId &&
+                item['id'] === id) {
+                delete messageItems[i];
+                item['id'] = newKey;
+                messageItems[newKey] = item;
+                break;
+            }
+        }
+
+        for (i in messageDrafts) {
+            if (!messageDrafts.hasOwnProperty(i)) {
+                continue;
+            }
+            item = messageDrafts[i];
+            if (item['mailAccountId'] === mailAccountId &&
+                item['mailFolderId'] === mailFolderId &&
+                item['id'] === id) {
+                delete messageDrafts[i];
+                item['id'] = newKey;
+                messageDrafts[newKey] = item;
+                break;
+            }
+        }
+
+        for (i in messageBodies) {
+            if (!messageBodies.hasOwnProperty(i)) {
+                continue;
+            }
+            body = messageBodies[i];
+            if (body['mailAccountId'] === mailAccountId &&
+                body['mailFolderId'] === mailFolderId &&
+                body['id'] === id) {
+                delete messageBodies[i];
+                body['id'] = newKey;
+                messageBodies[newKey] = body;
+                break;
+            }
+        }
+
 
     },
 
-    getMessageItem : function(mailAccountId, mailFolderId, id) {
-        if (arguments.length !== 3) {
-            Ext.raise("Unexpected missing arguments");
-        }
-        var me    = this,
-            items = me.getMessageItems();
 
-        for (var i = 0, len = items.length; i < len; i++) {
-            if (items[i]['mailAccountId'] == mailAccountId &&
-                items[i]['mailFolderId'] == mailFolderId &&
-                items[i]['id'] == id) {
-                return items[i];
+
+    getMessageItemAt : function(pos) {
+
+        const me = this,
+              messageItems = me.getMessageItems();
+
+        let o = 0;
+        for (var i in messageItems) {
+            if (o++ === pos) {
+                return messageItems[i];
             }
         }
 
         return null;
+    },
+
+    getMessageItem : function(mailAccountId, mailFolderId, id) {
+
+        if (arguments.length !== 3) {
+            Ext.raise("Unexpected missing arguments");
+        }
+        var me    = this,
+            items = me.getMessageItems(),
+            found = null;
+
+        for (var i in items) {
+            if (!items.hasOwnProperty(i)) {
+                continue;
+            }
+            if (items[i]['mailAccountId'] == mailAccountId &&
+                items[i]['mailFolderId'] == mailFolderId &&
+                items[i]['id'] == id) {
+                found = items[i];
+                break;
+            }
+        }
+
+        return found;
     },
 
 
@@ -509,21 +665,24 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
         if (me.messageItems) {
 
-            for (var i = 0, len = me.messageItems.length; i < len; i++) {
+            for (var i in me.messageItems) {
 
+                if (!me.messageItems.hasOwnProperty(i)) {
+                    continue;
+                }
                 me.messageItems[i].previewText = me.buildPreviewText(
-                    baseMessageItems[i].mailAccountId,
-                    baseMessageItems[i].mailFolderId,
-                    baseMessageItems[i].id
+                    me.messageItems[i].mailAccountId,
+                    me.messageItems[i].mailFolderId,
+                    me.messageItems[i].id
                 );
             }
 
             return me.messageItems;
         }
 
-        for (var i = 0; i < baseMessageItems.length; i++) {
+        for (var i in baseMessageItems) {
 
-            messageItems.push(Ext.apply({
+            messageItems[Ext.id()] = Ext.apply({
                 // leave first one as unread for tests
                 hasAttachments : AttachmentTable.createRandomAttachments(
                     baseMessageItems[i].mailAccountId,
@@ -536,7 +695,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
                     baseMessageItems[i].mailFolderId,
                     baseMessageItems[i].id
                 )
-            }, baseMessageItems[i]));
+            }, baseMessageItems[i]);
         }
 
         me.messageItems = messageItems;
@@ -584,7 +743,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             "INBOX.Trash"
         ];
 
-        for (var i = 0; i < 10000; i++) {
+        for (var i = 0; i < me.ITEM_LENGTH; i++) {
 
             mailFolderId = mailFolders[i % 5];
 
