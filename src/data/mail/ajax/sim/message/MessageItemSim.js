@@ -194,10 +194,13 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                     }
                 });
 
-                ret.responseText = Ext.JSON.encode({
+                let retVal = {
                     success: true,
                     data: result
-                });
+                };
+                ret.responseText = Ext.JSON.encode(retVal);
+
+                console.log("PUT MessageBody, response: ", retVal)
 
                 return ret;
             }
@@ -287,6 +290,8 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
             }
 
             if (ctx.params.target === 'MessageDraft') {
+
+                console.log("GET MessageDraft ", ctx.url);
 
                 var me = this,
                     ret = {},
