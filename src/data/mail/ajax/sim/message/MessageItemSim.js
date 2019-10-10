@@ -65,15 +65,13 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 return {success : false};
             }
 
-            messageItems = MessageTable.getMessageItems();
+            let messageItems = MessageTable.getMessageItems(), mi;
 
-            let mi = null;
-
-            for (var i = messageItems.length - 1; i >= 0; i --) {
+            for (var i in messageItems) {
                 mi = messageItems[i];
                 if (mi.id === id && mi.mailFolderId === mailFolderId &&
                     mi.mailAccountId === mailAccountId) {
-                    messageItems.splice(i, 1);
+                    delete messageItems[i];
                     found = true;
                     break;
                 }
