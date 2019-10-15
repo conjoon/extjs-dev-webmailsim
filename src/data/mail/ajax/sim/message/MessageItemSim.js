@@ -198,7 +198,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 };
                 ret.responseText = Ext.JSON.encode(retVal);
 
-                console.log("PUT MessageBody, response: ", retVal)
+                console.log("PUT " + target + ", response: ", retVal)
 
                 return ret;
             }
@@ -313,42 +313,49 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                     }
                 });
 
+                let retVal = null;
                 if (!fitem) {
 
-                    return {
+                    retVal = {
                         success : false
                     };
 
                     //ret.status = "404";
                     //ret.statusText = "Not Found";
                     //return ret;
+                } else {
+                    retVal = {
+                        success : true,
+                        data    : fitem
+                    };
                 }
 
-                return {
-                    success : true,
-                    data    : fitem
-                };
+                console.log("GET MessageDraft, response ", ctx.url);
 
+                return retVal;
             }
 
 
 
             if (keys.id) {
                 id = keys.id;
-                let fitem = Ext.Array.findBy(
-                    messageItems,
-                    function(messageItem) {
-                        return messageItem.mailAccountId === '' +keys.mailAccountId &&
-                            messageItem.mailFolderId === '' + keys.mailFolderId &&
-                            messageItem.id === '' + id;
-                    }
-                );
 
-                if (!fitem) {
+                let item;
+                for (let i in messageItems) {
+                    let messageItem = messageItems[i];
+                    if (messageItem.mailAccountId === keys.mailAccountId &&
+                        messageItem.mailFolderId === keys.mailFolderId &&
+                        messageItem.id === '' + id) {
+                        item = messageItem;
+                        break;
+                    }
+                }
+
+                if (!item) {
                     return {status : 404, success : false};
                 }
 
-                return {data : fitem};
+                return {data : item};
 
             } else if (!id) {
 
@@ -370,20 +377,28 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
         getMessageBody : function(mailAccountId, mailFolderId, id) {
 
+            let retVal;
+
             if (conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.peekMessageBody(
                     mailAccountId,
                     mailFolderId,
                     id
                 )) {
-                return {success : true, data : conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable
+
+                retVal = {success : true, data : conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable
                         .getMessageBody(
                             mailAccountId,
                             mailFolderId,
                             id
                         )};
+                console.log("GET MessageBody, response, ", retVal);
+
+                return retVal
             }
 
-            return {success : false};
+            retVal = {success : false};
+            console.log("GET MessageBody, response, ", retVal);
+            return retVal;
 
         },
 

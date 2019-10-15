@@ -56,7 +56,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim', {
             if (draft.xCnDraftInfo) {
                 let [accountId, folderId, id] = Ext.decode(atob(draft.xCnDraftInfo));
                 let items = MessageTable.getMessageItems();
-                for (let i = 0, len = items.length; i < len; i++) {
+                for (let i in items) {
                     if (items[i].mailAccountId === accountId && items[i].id === id &&
                         items[i].mailFolderId === folderId) {
                         MessageTable.updateAllItemData(

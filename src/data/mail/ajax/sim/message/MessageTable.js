@@ -161,8 +161,27 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             Ext.raise("Unexpected missing arguments");
         }
 
-        var me      = this,
-            message = me.getMessageBody(mailAccountId, mailFolderId, id);
+        const me = this,
+              message = me.getMessageBody(mailAccountId, mailFolderId, id);
+
+        // swap
+        if (data.mailFolderId && mailFolderId !== data.mailFolderId) {
+            let fkId;
+            for (let i in me.messageBodies) {
+                let mb = me.messageBodies[i];
+                if (mb.mailAccountId === mailAccountId && mb.mailFolderId === mailFolderId && mb.id === id) {
+                    fkId = i;
+                    break;
+                }
+            }
+            if (!fkId) {
+                Ext.raise("no MessageBody found!");
+            }
+            delete me.messageBodies[fkId];
+            me.messageBodies[Ext.id()] = message;
+        }
+
+
 
         // just in case
         delete data.id;
@@ -172,12 +191,6 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         }
 
         Ext.apply(message, data);
-
-        // swap
-        if (data.mailFolderId && mailFolderId !== data.mailFolderId) {
-            delete me.messageBodies[[mailAccountId, mailFolderId, id].join('-')];
-            me.messageBodies[[mailAccountId, data.mailFolderId, id].join('-')] = message;
-        }
 
         // force to refresh the date
         if (skipUpdate !== true) {
@@ -371,15 +384,15 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
     },
 
 
-    updateMessageItem : function(mailAccountId, mailFolderId, id, values) {
+    updateMessageItem : function(mailAccountId, mailFolderId, id, values, changeId = false) {
 
-        if (arguments.length !== 4) {
+        if (arguments.length < 4) {
             Ext.raise("Unexpected missing arguments");
         }
 
         var me = this;
 
-        let item = me.updateAllItemData(mailAccountId, mailFolderId, id, values);
+        let item = me.updateAllItemData(mailAccountId, mailFolderId, id, values, changeId);
 
         conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
             mailAccountId, mailFolderId, id, {parentMessageItemId : item.id}
@@ -489,7 +502,9 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         }
 
         if (values.mailFolderId && values.mailFolderId != mailFolderId) {
+            // make sure id changes since mail gets moved!
 
+            idChange = true;
             let hasAtt = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
                 mailAccountId, mailFolderId, id, {
                     mailFolderId : values.mailFolderId
@@ -498,9 +513,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
             values.hasAttachments = hasAtt && hasAtt.length ? 1 : 0;
 
-            me.updateMessageBody(mailAccountId, mailFolderId, id, {
+            let prChk = me.updateMessageBody(mailAccountId, mailFolderId, id, {
                 mailFolderId : values.mailFolderId
             }, true); // skip update to prevent possible recursion
+
         }
 
         for (var i = 0, len = dataItems.length; i < len; i++) {
@@ -547,7 +563,8 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
         }
         if (idChange) {
             let newKey = me.getNextMessageDraftKey();
-            me.changeIdFor(mailAccountId, mailFolderId, id, newKey);
+            // the mailFolder might have changed due to a move operation!
+            me.changeIdFor(mailAccountId, item.mailFolderId, id, newKey);
         }
 
 
@@ -556,6 +573,11 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
 
 
     changeIdFor : function(mailAccountId, mailFolderId, id, newKey) {
+
+
+        if (!mailAccountId || !mailFolderId || !id || !newKey) {
+            Ext.raise("missing or invalid argument!");
+        }
 
         const me = this;
 
@@ -569,6 +591,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
                 continue;
             }
             item = messageItems[i];
+
             if (item['mailAccountId'] === mailAccountId &&
                 item['mailFolderId'] === mailFolderId &&
                 item['id'] === id) {
@@ -578,6 +601,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
                 break;
             }
         }
+
 
         for (i in messageDrafts) {
             if (!messageDrafts.hasOwnProperty(i)) {
