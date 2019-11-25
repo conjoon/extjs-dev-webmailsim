@@ -105,8 +105,12 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 return;
             }
 
-            if (ctx.params.target === 'MessageBody') {
+            if (ctx.params.target === 'MessageBodyDraft') {
                 return this.postMessageBody(ctx);
+            }
+
+            if (ctx.params.target !== 'MessageDraft') {
+                Ext.raise("Invalid target parameter: " + ctx.params.target);
             }
 
             // MessageDraft
@@ -169,7 +173,11 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 result,
                 target = ctx.params.target;
 
-            if (["MessageBody", "MessageItem"].indexOf(target) !== -1) {
+            if (["MessageBodyDraft", "MessageItem", "MessageDraft"].indexOf(target) === -1) {
+                Ext.raise("Invalid target parameter: " + target);
+            }
+
+            if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
                 for (var i in ctx.xhr.options.jsonData) {
                     if (!ctx.xhr.options.jsonData.hasOwnProperty(i)) {
                         continue;
@@ -180,7 +188,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 console.log("PUT " + target, values);
 
 
-                if (target === 'MessageBody') {
+                if (target === 'MessageBodyDraft') {
                     result = MessageTable.updateMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, values);
                 } else {
                     result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
@@ -281,10 +289,20 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 MessageTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
                 messageItems = MessageTable.getMessageItems();
 
+            if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
+                Ext.raise("Invalid target parameter: " + ctx.params.target);
+            }
+
             if (ctx.params.target === 'MessageBody') {
 
                 console.log("GET MessageBody ", ctx.url, keys);
                 return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id);
+            }
+
+            if (ctx.params.target === 'MessageBodyDraft') {
+
+                console.log("GET MessageBodyDraft ", ctx.url, keys);
+                return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
             }
 
             if (ctx.params.target === 'MessageDraft') {
@@ -375,7 +393,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
             }
         },
 
-        getMessageBody : function(mailAccountId, mailFolderId, id) {
+        getMessageBody : function(mailAccountId, mailFolderId, id, isDraft = false) {
 
             let retVal;
 
@@ -391,7 +409,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                             mailFolderId,
                             id
                         )};
-                console.log("GET MessageBody, response, ", retVal);
+
+                let entity = isDraft ? "MessageBodyDraft" : "MessageBody";
+
+                console.log("GET " + entity + ", response, ", retVal);
 
                 return retVal
             }
@@ -405,7 +426,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
         postMessageBody : function(ctx) {
 
-            console.log("POST MessageBody", ctx.xhr.options.jsonData);
+            console.log("POST MessageBodyDraft", ctx.xhr.options.jsonData);
 
             var me    = this,
                 body  = {},
@@ -450,7 +471,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
 
             ret.responseText = Ext.JSON.encode(retVal);
 
-            console.log("POSTED MessageBody", retVal);
+            console.log("POSTED MessageBodyDraft", retVal);
             return ret;
         },
 
