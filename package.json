@@ -4,7 +4,7 @@
 
     "sencha": {
         "namespace": "conjoon.dev.cn_mailsim",
-        "coon-js" : {"packageController" : true},
+        "coon-js" : {"package" : {"controller" :  true}},
         "type": "code",
         "toolkit": "classic",
         "creator": "The conjoon Project - https://github.com/conjoon",
