@@ -80,7 +80,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             };
 
         return Ext.String.format(
-            "{0}-{1}-{2} {3}:{4}",
+            "{0}-{1}-{2} {3}:{4}:00 +0000",
             y, pad(m), pad(d), pad(h), pad(i)
         );
     },
@@ -413,7 +413,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             id            = me.getNextMessageDraftKey(),
             messageDrafts = me.getMessageDrafts(),
             messageItems  = me.getMessageItems(),
-            date          = Ext.util.Format.date(new Date(), 'Y-m-d H:i');
+            date          = Ext.util.Format.date(new Date(), 'Y-m-d H:i:s') + "+0000";
 
         //manually fake attachments and messageBody
         conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.attachments[id] = null;
@@ -530,7 +530,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', {
             }
 
             if (skipDate === false) {
-                currItem['date'] = Ext.util.Format.date(new Date(), 'Y-m-d H:i');
+                currItem['date'] = Ext.util.Format.date(new Date(), 'Y-m-d H:i:s') + "+0000";
             }
 
             for (var prop in values) {
