@@ -1,7 +1,7 @@
 /**
  * conjoon
  * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -252,16 +252,36 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
             t.expect(attachments.length).toBe(1);
             t.expect(attachments[0]).toBe(attachment2);
 
+        });
 
 
+        t.it("correct date format for MessageDraft", function(t) {
+
+            let items = MessageTable.buildBaseMessageItems(), i;
+
+            let data = {
+                subject : "foo"
+            };
+
+            let draft = MessageTable.createMessageDraft("dev", "INBOX", data);
+
+            let regex = /^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2} \+\d{4}/;
+
+            t.expect(regex.test(draft.date)).toBe(true);
+
+            let newDraft = MessageTable.updateMessageDraft(
+                draft.mailAccountId,
+                draft.mailFolderId,
+                draft.id,
+                {subject : 'bar'},
+                true
+            );
+
+            t.expect(regex.test(newDraft.date)).toBe(true);
 
         });
 
 
-    });
-
-
-
-});
+    });});
 
 
