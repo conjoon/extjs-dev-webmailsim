@@ -1,7 +1,7 @@
 /**
  * conjoon
  * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -87,7 +87,7 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                 }
             });
 
-            ret.responseText = Ext.JSON.encode({success : true, data:[]});
+            ret.responseText = Ext.JSON.encode({success : true});
 
 
             Ext.apply(me, ret);
@@ -385,7 +385,6 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim', {
                         items.push(messageItem);
                     }
                 }
-
 
                 return items;
             } else {
