@@ -1,40 +1,86 @@
 {
-
-    "name": "dev-cn_mailsim",
-
-    "sencha": {
-        "namespace": "conjoon.dev.cn_mailsim",
-        "coon-js" : {"package" : {"controller" :  true}},
-        "type": "code",
-        "toolkit": "classic",
-        "creator": "The conjoon Project - https://github.com/conjoon",
-        "summary": "Sencha ExtJS Dev Package for mocking backend requests and data for conjoon/app-cn_mail.",
-        "detailedDescription": "This package allows for mocking backend requests and helps while developing frontend code for conjoon/app-cn_mail.",
-        "version": "1.0.0",
-        "compatVersion": "1.0.0",
-        "format": "1",
-        "slicer": null,
-        "fashion" : null,
-        "output": {
-            "base"   : "${package.dir}/build",
-            "js": {
-                "version": "ES6"
-            }
-        },
-        "compressor": {
-            "polyfills": "none"
-        },
-        "local": true,
-        "sass" : null,
-        "classpath": [
-            "${package.dir}/src"
-        ],
-        "overrides": null,
-        "example": null,
-        "framework": "ext",
-        "requires": [
-            "lib-cn_core",
-            "ux"
-        ]
-    }
+  "name": "@conjoon/extjs-dev-mailsim",
+  "sencha": {
+    "name": "extjs-dev-mailsim",
+    "namespace": "conjoon.dev.cn_mailsim",
+    "coon-js": {
+      "package": {
+        "controller": true
+      }
+    },
+    "type": "code",
+    "toolkit": "classic",
+    "creator": "Thorsten Suckow-Homberg <thorsten@suckow-homberg.de>",
+    "summary": "Sencha ExtJS Dev Package for mocking backend requests and data for @conjoon/extjs-app-webmail.",
+    "version": "1.0.0",
+    "compatVersion": "1.0.0",
+    "format": "1",
+    "slicer": null,
+    "fashion": null,
+    "output": {
+      "base": "${package.dir}/build",
+      "js": {
+        "version": "ES6"
+      }
+    },
+    "compressor": {
+      "polyfills": "none"
+    },
+    "local": true,
+    "sass": null,
+    "classpath": [
+      "${package.dir}/src"
+    ],
+    "overrides": null,
+    "example": null,
+    "framework": "ext",
+    "requires": [
+      "extjs-lib-core",
+      "ux"
+    ]
+  },
+  "description": "This Sencha ExtJS NPM package contains mock data for development of @conjoon/extjs-app-webmail]",
+  "version": "0.0.9",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "npx ws --port 8092 --static.index tests.redirect.html --open",
+    "postinstall": "npm run setup:tests",
+    "setup:tests": "npx extjs-link && siesta-lib-helper"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/conjoon/extjs-dev-webmailsim.git"
+  },
+  "keywords": [
+    "simlet",
+    "mock",
+    "request",
+    "webmail",
+    "extjs",
+    "sencha",
+    "coonjs",
+    "coon.js",
+    "conjoon",
+    "l8js",
+    "l8",
+    "l8.js"
+  ],
+  "author": "Thorsten Suckow-Homberg <thorsten@suckow-homberg.de>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/conjoon/extjs-dev-webmailsim/issues"
+  },
+  "homepage": "https://github.com/conjoon/extjs-dev-webmailsim#readme",
+  "devDependencies": {
+    "@coon-js/extjs-lib-core": "file:../../@coon-js/extjs-lib-core",
+    "@coon-js/extjs-link": "file:../../@coon-js/extjs-link",
+    "@coon-js/siesta-lib-helper": "file:../../@coon-js/siesta-lib-helper",
+    "@l8js/l8": "file:../../@l8js/l8",
+    "local-web-server": "^4.2.1",
+    "siesta-lite": "^5.5.2",
+    "eslint": "^7.28.0"
+  }
 }

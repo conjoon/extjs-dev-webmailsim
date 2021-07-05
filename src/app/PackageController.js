@@ -1,7 +1,7 @@
 /**
  * conjoon
- * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * extjs-dev-webmailsim
+ * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,7 +24,7 @@
  */
 
 /**
- * PackageController for the dev-cn_mailsim packages.
+ * PackageController for the extjs-dev-webmailsim packages.
  * Simply tags this package to amke sure it can be loaded into a coon.js-Application.
  * Requires PackageSim and makes sure mocks are registered.
  */

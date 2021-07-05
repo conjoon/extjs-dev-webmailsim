@@ -3,3 +3,4 @@
 /tests/tests.config.js
 /tests/index.html
 /.idea
+/node_modules

@@ -1,7 +1,7 @@
 /**
  * conjoon
- * dev-cn_mailsim
- * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * extjs-dev-webmailsim
+ * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
