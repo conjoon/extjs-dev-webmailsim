@@ -34,8 +34,8 @@ export default {
 
     loaderPath: {
 
-        "coon.core" : "../node_modules/@coon-js/extjs-lib-core/src",
-        'conjoon.dev.cn_mailsim'   : '../src'
+        "coon.core": "../node_modules/@coon-js/extjs-lib-core/src",
+        "conjoon.dev.cn_mailsim": "../src"
 
     },
 

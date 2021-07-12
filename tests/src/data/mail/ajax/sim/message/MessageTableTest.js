@@ -23,23 +23,23 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', function(t) {
+describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", function (t) {
 
 
-    t.requireOk('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable', function() {
+    t.requireOk("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", function () {
 
         const MessageTable    = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
-              AttachmentTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable;
+            AttachmentTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable;
 
-      MessageTable.ITEM_LENGTH = 5;
+        MessageTable.ITEM_LENGTH = 5;
 
 
-        t.beforeEach(function() {
+        t.beforeEach(function () {
             MessageTable.resetAll();
         });
 
 
-        t.it("buildBaseMessageItems()", function(t) {
+        t.it("buildBaseMessageItems()", function (t) {
 
             const ITEM_LENGTH = MessageTable.ITEM_LENGTH;
             let items = MessageTable.buildBaseMessageItems(), i;
@@ -63,18 +63,18 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
         });
 
 
-        t.it("updateMessageDraft() - triggers new id", function(t) {
+        t.it("updateMessageDraft() - triggers new id", function (t) {
 
             let items = MessageTable.buildBaseMessageItems(), i;
 
             let data = {
-                subject : "foo"
+                subject: "foo"
             };
 
 
             let draft = MessageTable.createMessageDraft("dev", "INBOX", data);
 
-            let attachment = AttachmentTable.createAttachment(draft.mailAccountId, draft.mailFolderId, draft.id, {text : 'foo'});
+            let attachment = AttachmentTable.createAttachment(draft.mailAccountId, draft.mailFolderId, draft.id, {text: "foo"});
 
             let mailAccountId = draft.mailAccountId,
                 mailFolderId  = draft.mailFolderId,
@@ -85,7 +85,7 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
                 draft.mailAccountId,
                 draft.mailFolderId,
                 draft.id,
-                {subject : 'bar'},
+                {subject: "bar"},
                 true
             );
 
@@ -112,24 +112,24 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
         });
 
 
-        t.it("updateMessageBody() - triggers new id", function(t) {
+        t.it("updateMessageBody() - triggers new id", function (t) {
 
             let items = MessageTable.buildBaseMessageItems();
 
             let data = {
-                subject : "foo"
+                subject: "foo"
             };
 
 
             let draft = MessageTable.createMessageDraft("dev", "INBOX", data);
 
-            let attachment = AttachmentTable.createAttachment(draft.mailAccountId, draft.mailFolderId, draft.id, {text : 'foo'});
+            let attachment = AttachmentTable.createAttachment(draft.mailAccountId, draft.mailFolderId, draft.id, {text: "foo"});
 
             let mailAccountId = draft.mailAccountId,
                 mailFolderId  = draft.mailFolderId,
                 id            = draft.id;
 
-            let messageBody = MessageTable.updateMessageBody(mailAccountId, mailFolderId, id, {textHtml : 'html'});
+            let messageBody = MessageTable.updateMessageBody(mailAccountId, mailFolderId, id, {textHtml: "html"});
 
             t.expect(attachment.parentMessageItemId).toBe(messageBody.id);
 
@@ -148,12 +148,12 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
         });
 
 
-        t.it("createAttachment() - triggers new id", function(t) {
+        t.it("createAttachment() - triggers new id", function (t) {
 
             let items = MessageTable.buildBaseMessageItems();
 
             let data = {
-                subject : "foo"
+                subject: "foo"
             };
 
 
@@ -163,7 +163,7 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
                 mailFolderId  = draft.mailFolderId,
                 id            = draft.id;
 
-            let attachment = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text : 'foo'});
+            let attachment = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text: "foo"});
 
             t.expect(attachment.text).toBe("foo");
 
@@ -189,7 +189,7 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
             t.expect(mailFolderId).toBe(draft.mailFolderId);
             t.expect(id).toBe(draft.id);
 
-            let attachment2 = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text : 'bar'});
+            let attachment2 = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text: "bar"});
             t.expect(attachment2.text).toBe("bar");
 
             t.expect(id).not.toBe(attachment2.parentMessageItemId);
@@ -204,12 +204,12 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
         });
 
 
-        t.it("deleteAttachment() - triggers new id", function(t) {
+        t.it("deleteAttachment() - triggers new id", function (t) {
 
             let items = MessageTable.buildBaseMessageItems();
 
             let data = {
-                subject : "foo"
+                subject: "foo"
             };
 
 
@@ -219,8 +219,8 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
                 mailFolderId  = draft.mailFolderId,
                 id            = draft.id;
 
-            let attachment  = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text : 'foo'}),
-                attachment2 = AttachmentTable.createAttachment(mailAccountId, mailFolderId, attachment.parentMessageItemId, {text : 'bar'});
+            let attachment  = AttachmentTable.createAttachment(mailAccountId, mailFolderId, id, {text: "foo"}),
+                attachment2 = AttachmentTable.createAttachment(mailAccountId, mailFolderId, attachment.parentMessageItemId, {text: "bar"});
 
             t.expect(mailAccountId).toBe(draft.mailAccountId);
             t.expect(mailFolderId).toBe(draft.mailFolderId);
@@ -255,12 +255,12 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
         });
 
 
-        t.it("correct date format for MessageDraft", function(t) {
+        t.it("correct date format for MessageDraft", function (t) {
 
             let items = MessageTable.buildBaseMessageItems(), i;
 
             let data = {
-                subject : "foo"
+                subject: "foo"
             };
 
             let draft = MessageTable.createMessageDraft("dev", "INBOX", data);
@@ -273,7 +273,7 @@ describe('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest', f
                 draft.mailAccountId,
                 draft.mailFolderId,
                 draft.id,
-                {subject : 'bar'},
+                {subject: "bar"},
                 true
             );
 

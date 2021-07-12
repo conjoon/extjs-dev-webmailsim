@@ -23,13 +23,13 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-describe('conjoon.dev.cn_mailsim.app.PackageControllerTest', function(t) {
+describe("conjoon.dev.cn_mailsim.app.PackageControllerTest", function (t) {
 
-    t.it("should create the PackageController properly", function(t) {
+    t.it("should create the PackageController properly", function (t) {
 
-       let pc = Ext.create('conjoon.dev.cn_mailsim.app.PackageController');
+        let pc = Ext.create("conjoon.dev.cn_mailsim.app.PackageController");
 
-       t.isInstanceOf(pc, 'conjoon.dev.cn_mailsim.app.PackageController');
+        t.isInstanceOf(pc, "conjoon.dev.cn_mailsim.app.PackageController");
 
         t.expect(conjoon.dev.cn_mailsim.data.mail.PackageSim).toBeDefined();
 

@@ -25,14 +25,23 @@
 
 /**
  * This is a dummy class that takes care of requiring all sim definitions
- * from the data.mail.ajax.sim namespace for local development.
+ * from the data.mail.ajax.sim namespace for local development. Will call init()
+ * on each sim once the classes where defined.
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.PackageSim', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.PackageSim", {
     requires: [
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.account.MailAccountSim'
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.account.MailAccountSim"
     ]
+}, () => {
+
+    conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim.init();
+    conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim.init();
+    conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim.init();
+    conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim.init();
+    conjoon.dev.cn_mailsim.data.mail.ajax.sim.account.MailAccountSim.init();
+
 });

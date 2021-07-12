@@ -26,27 +26,27 @@
 /**
  *
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", {
 
-    singleton : true,
+    singleton: true,
 
-    attachments : null,
+    attachments: null,
 
-    largestAttachmentId : 0,
+    largestAttachmentId: 0,
 
-    getRandom : function(min, max) {
+    getRandom: function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
-    moveAttachments : function(mailAccountId, mailFolderId, parentMessageItemId, moveInfo) {
+    moveAttachments: function (mailAccountId, mailFolderId, parentMessageItemId, moveInfo) {
 
         const me     = this,
-              key    = [mailAccountId, mailFolderId, parentMessageItemId].join('-'),
-              newKey = [
-                  mailAccountId,
-                  moveInfo.mailFolderId ? moveInfo.mailFolderId : mailFolderId,
-                  moveInfo.parentMessageItemId ? moveInfo.parentMessageItemId : parentMessageItemId
-              ].join('-');
+            key    = [mailAccountId, mailFolderId, parentMessageItemId].join("-"),
+            newKey = [
+                mailAccountId,
+                moveInfo.mailFolderId ? moveInfo.mailFolderId : mailFolderId,
+                moveInfo.parentMessageItemId ? moveInfo.parentMessageItemId : parentMessageItemId
+            ].join("-");
 
         if (key === newKey) {
             return;
@@ -79,10 +79,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
                 continue;
             }
             if (moveInfo.mailFolderId) {
-                me.attachments[newKey][i]['mailFolderId'] = moveInfo.mailFolderId;
+                me.attachments[newKey][i]["mailFolderId"] = moveInfo.mailFolderId;
             }
             if (moveInfo.parentMessageItemId) {
-                me.attachments[newKey][i]['parentMessageItemId'] = moveInfo.parentMessageItemId;
+                me.attachments[newKey][i]["parentMessageItemId"] = moveInfo.parentMessageItemId;
             }
         }
 
@@ -90,10 +90,10 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
     },
 
-    createAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, attachmentData) {
+    createAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, attachmentData) {
 
         var me            = this,
-            key           =  mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
+            key           =  mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
 
         if (!me.attachments) {
             me.attachments = {};
@@ -110,19 +110,19 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
         let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
             mailAccountId, mailFolderId, parentMessageItemId, {}, true
         );
-if (!itemData)debugger;
+        if (!itemData)debugger;
         me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {
-            parentMessageItemId : itemData.id
+            parentMessageItemId: itemData.id
         });
 
         return Ext.apply(attachmentData, {
-            mailAccountId       : itemData.mailAccountId,
-            mailFolderId        : itemData.mailFolderId,
-            parentMessageItemId : itemData.id
+            mailAccountId: itemData.mailAccountId,
+            mailFolderId: itemData.mailFolderId,
+            parentMessageItemId: itemData.id
         });
     },
 
-    deleteAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, id) {
+    deleteAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, id) {
 
         if (arguments.length < 4) {
             Ext.raise("Unexpected missing arguments.");
@@ -130,7 +130,7 @@ if (!itemData)debugger;
 
 
         let me  = this,
-            key = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId,
+            key = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId,
             found = 0;
 
         if (!me.attachments) {
@@ -171,12 +171,12 @@ if (!itemData)debugger;
             let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
                 mailAccountId, mailFolderId, parentMessageItemId, {}, true);
 
-            me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {parentMessageItemId : itemData.id});
+            me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {parentMessageItemId: itemData.id});
 
             return {
-                parentMessageItemId : itemData.id,
-                mailAccountId       : itemData.mailAccountId,
-                mailFolderId        : itemData.mailFolderId,
+                parentMessageItemId: itemData.id,
+                mailAccountId: itemData.mailAccountId,
+                mailFolderId: itemData.mailFolderId
             };
         }
 
@@ -185,12 +185,11 @@ if (!itemData)debugger;
     },
 
 
-
-    getAttachments : function(mailAccountId, mailFolderId, parentMessageItemId) {
+    getAttachments: function (mailAccountId, mailFolderId, parentMessageItemId) {
         var me         = this,
             attachments = null,
             rec,
-            key = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
+            key = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
 
         let wasEmpty = false;
 
@@ -227,10 +226,10 @@ if (!itemData)debugger;
     },
 
 
-    createRandomAttachments : function(mailAccountId, mailFolderId, parentMessageItemId) {
+    createRandomAttachments: function (mailAccountId, mailFolderId, parentMessageItemId) {
 
         const me = this,
-              key = [mailAccountId, mailFolderId, parentMessageItemId].join('-');
+            key = [mailAccountId, mailFolderId, parentMessageItemId].join("-");
 
         let attachmentNames = [
                 "IMG3701",
@@ -240,18 +239,18 @@ if (!itemData)debugger;
                 "architecture_draft"
             ],
             attachmentTypes = [
-                {type : 'application/pdf', extension : 'pdf'},
-                {type : 'image/jpg',       extension : 'jpg'},
-                {type : 'application/x-rar-compressed', extension : 'rar'},
-                {type : 'application/zip', extension : 'zip'},
-                {type : 'text/plain', extension : 'txt'}
+                {type: "application/pdf", extension: "pdf"},
+                {type: "image/jpg",       extension: "jpg"},
+                {type: "application/x-rar-compressed", extension: "rar"},
+                {type: "application/zip", extension: "zip"},
+                {type: "text/plain", extension: "txt"}
             ],
             attachmentSizes = [
-                '24233',
-                '23532553253',
-                '6588668',
-                '23434',
-                '46337773'
+                "24233",
+                "23532553253",
+                "6588668",
+                "23434",
+                "46337773"
             ], rec;
 
         if (!me.attachments) {
@@ -266,14 +265,14 @@ if (!itemData)debugger;
             }
 
             rec = {
-                id                  : ++me.largestAttachmentId,
-                parentMessageItemId : parentMessageItemId,
-                mailFolderId        : mailFolderId,
-                mailAccountId       : mailAccountId,
-                text                : attachmentNames[me.getRandom(0, 4)] + '.' +
+                id: ++me.largestAttachmentId,
+                parentMessageItemId: parentMessageItemId,
+                mailFolderId: mailFolderId,
+                mailAccountId: mailAccountId,
+                text: attachmentNames[me.getRandom(0, 4)] + "." +
                 attachmentTypes[me.getRandom(0, 4)].extension,
-                type                : attachmentTypes[me.getRandom(0, 4)].type,
-                size                : attachmentSizes[me.getRandom(0, 4)]
+                type: attachmentTypes[me.getRandom(0, 4)].type,
+                size: attachmentSizes[me.getRandom(0, 4)]
             };
 
             me.attachments[key].push(rec);
@@ -285,7 +284,7 @@ if (!itemData)debugger;
     },
 
 
-    getAttachmentAt : function(pos) {
+    getAttachmentAt: function (pos) {
 
         const me = this;
 
@@ -310,11 +309,11 @@ if (!itemData)debugger;
     },
 
 
-    getAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, attachmentId) {
+    getAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, attachmentId) {
 
         var me            = this,
             messageItemId = parentMessageItemId,
-            key           = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
+            key           = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
 
         if (!me.attachments) {
             me.attachments = {};
@@ -342,7 +341,7 @@ if (!itemData)debugger;
         return null;
     },
 
-    resetAll : function() {
+    resetAll: function () {
         const me = this;
 
         me.attachments = null;

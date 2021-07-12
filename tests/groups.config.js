@@ -24,25 +24,25 @@
  */
 
 export default [{
-    group : 'universal',
-    items : [{
-        group : 'app',
-        items : [
-            'src/app/PackageControllerTest.js'
+    group: "universal",
+    items: [{
+        group: "app",
+        items: [
+            "src/app/PackageControllerTest.js"
         ]
     }, {
-        group : 'data',
-        items : [{
-            group : 'mail',
+        group: "data",
+        items: [{
+            group: "mail",
 
-            items : [{
-                group : 'ajax',
-                items : [{
-                    group : 'sim',
-                    items : [{
-                        group : 'message',
-                        items : [
-                            'src/data/mail/ajax/sim/message/MessageTableTest.js'
+            items: [{
+                group: "ajax",
+                items: [{
+                    group: "sim",
+                    items: [{
+                        group: "message",
+                        items: [
+                            "src/data/mail/ajax/sim/message/MessageTableTest.js"
                         ]
                     }]
                 }]

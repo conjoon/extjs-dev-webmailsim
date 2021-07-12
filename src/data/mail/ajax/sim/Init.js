@@ -26,19 +26,19 @@
 /**
  *
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init", {
     requires: [
-        'Ext.ux.ajax.JsonSimlet',
-        'Ext.ux.ajax.SimManager'
+        "Ext.ux.ajax.JsonSimlet",
+        "Ext.ux.ajax.SimManager"
     ],
 
     singleton: true,
 
-    constructor: function() {
+    constructor: function () {
 
         Ext.ux.ajax.SimManager.init({
-            delay : 1,
-            defaultSimlet : null
+            delay: 1,
+            defaultSimlet: null
         });
 
     }

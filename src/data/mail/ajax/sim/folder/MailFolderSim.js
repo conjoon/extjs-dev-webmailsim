@@ -27,158 +27,158 @@
  * Ext.ux.ajax.SimManager hook for {@link conjoon.dev.cn_mailsim.model.mail.folder.MailFolder}
  * data.
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.folder.MailFolderSim", {
 
-    requires : [
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init'
-    ]
+    singleton: true,
+    requires: [
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init"
+    ],
 
-}, function() {
+    init: function () {
 
-    var folders =   [{
-        id            : "INBOX",
-        name          : 'Inbox',
-        unreadCount   : 3787,
-        folderType          : 'INBOX',
-        data      : [{
-            id            : "INBOX.MyStuff",
-            name          : 'MyStuff',
-            unreadCount   : 3787,
-            folderType          : 'INBOX',
-            data      : [],
-            mailAccountId :  "dev_sys_conjoon_org",
-        }],
-        mailAccountId :  "dev_sys_conjoon_org",
-    }, {
-        id            : "INBOX.Sent Messages",
-        name          : 'Sent',
-        unreadCount   : 0,
-        folderType          : 'SENT',
-        data      : [],
-        mailAccountId :  "dev_sys_conjoon_org",
-    }, {
-        id            : "INBOX.Junk",
-        name          : 'Junk',
-        unreadCount   : 0,
-        folderType          : 'JUNK',
-        data      : [],
-        mailAccountId :  "dev_sys_conjoon_org",
-    }, {
-        id            : "INBOX.Drafts",
-        name          : 'Drafts',
-        unreadCount   : 0,
-        folderType          : 'DRAFT',
-        data      : [],
-        mailAccountId :  "dev_sys_conjoon_org",
-    }, {
-        id           : "INBOX.Trash",
-        name         : 'Trash',
-        unreadCount  : 5,
-        folderType         : 'TRASH',
-        data     : [],
-        mailAccountId :  "dev_sys_conjoon_org",
-    },
-    //////////////////////////////
-    {
-        id            : "INBOX",
-        name          : 'Inbox',
-        unreadCount   : 3787,
-        folderType          : 'INBOX',
-        data      : [],
-        mailAccountId :  "mail_account",
-
-    }, {
-        id            : "INBOX.Sent Messages",
-        name          : 'Sent',
-        unreadCount   : 0,
-        folderType          : 'SENT',
-            data      : [],
-        mailAccountId :  "mail_account",
-    }, {
-        id            : "INBOX.Junk",
-        name          : 'Junk',
-        unreadCount   : 0,
-        folderType          : 'JUNK',
-            data      : [],
-        mailAccountId :  "mail_account",
-    }, {
-        id            : "INBOX.Drafts",
-        name          : 'Drafts',
-        unreadCount   : 0,
-        folderType          : 'DRAFT',
-            data      : [],
-        mailAccountId :  "mail_account",
-    }, {
-        id           : "INBOX.Trash",
-        name         : 'Trash',
-        unreadCount  : 5,
-        folderType         : 'TRASH',
-            data     : [],
-        mailAccountId :  "mail_account"
-    }];
-
-
-
-    Ext.ux.ajax.SimManager.register({
-        type : 'json',
-
-        url : /cn_mail\/MailAccounts\/(.+)\/MailFolders(\/.*)?/im,
-
-        doGet: function(ctx) {
-
-            const me            = this,
-                  keys = me.extractCompoundKey(ctx.url),
-                  mailAccountId = keys.mailAccountId;
-
-            ret = {};
-
-            let mailFolders = Ext.Array.filter(
-                folders,
-                function(item) {
-                    return item.mailAccountId === '' + mailAccountId;
-                }
-            );
-
-
-            ret.responseText = Ext.JSON.encode({
-                data :  mailFolders
-            });
-
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
-            return ret;
-
-
+        var folders =   [{
+            id: "INBOX",
+            name: "Inbox",
+            unreadCount: 3787,
+            folderType: "INBOX",
+            data: [{
+                id: "INBOX.MyStuff",
+                name: "MyStuff",
+                unreadCount: 3787,
+                folderType: "INBOX",
+                data: [],
+                mailAccountId: "dev_sys_conjoon_org"
+            }],
+            mailAccountId: "dev_sys_conjoon_org"
+        }, {
+            id: "INBOX.Sent Messages",
+            name: "Sent",
+            unreadCount: 0,
+            folderType: "SENT",
+            data: [],
+            mailAccountId: "dev_sys_conjoon_org"
+        }, {
+            id: "INBOX.Junk",
+            name: "Junk",
+            unreadCount: 0,
+            folderType: "JUNK",
+            data: [],
+            mailAccountId: "dev_sys_conjoon_org"
+        }, {
+            id: "INBOX.Drafts",
+            name: "Drafts",
+            unreadCount: 0,
+            folderType: "DRAFT",
+            data: [],
+            mailAccountId: "dev_sys_conjoon_org"
+        }, {
+            id: "INBOX.Trash",
+            name: "Trash",
+            unreadCount: 5,
+            folderType: "TRASH",
+            data: [],
+            mailAccountId: "dev_sys_conjoon_org"
         },
+        //////////////////////////////
+        {
+            id: "INBOX",
+            name: "Inbox",
+            unreadCount: 3787,
+            folderType: "INBOX",
+            data: [],
+            mailAccountId: "mail_account"
+
+        }, {
+            id: "INBOX.Sent Messages",
+            name: "Sent",
+            unreadCount: 0,
+            folderType: "SENT",
+            data: [],
+            mailAccountId: "mail_account"
+        }, {
+            id: "INBOX.Junk",
+            name: "Junk",
+            unreadCount: 0,
+            folderType: "JUNK",
+            data: [],
+            mailAccountId: "mail_account"
+        }, {
+            id: "INBOX.Drafts",
+            name: "Drafts",
+            unreadCount: 0,
+            folderType: "DRAFT",
+            data: [],
+            mailAccountId: "mail_account"
+        }, {
+            id: "INBOX.Trash",
+            name: "Trash",
+            unreadCount: 5,
+            folderType: "TRASH",
+            data: [],
+            mailAccountId: "mail_account"
+        }];
 
 
-        /**
-         * Returns a numeric array with the following values:
-         * mailAccountId, mailFolderId, id
-         *
-         * @param url
-         * @returns {*[]}
-         */
-        extractCompoundKey : function(url) {
+        Ext.ux.ajax.SimManager.register({
+            type: "json",
 
-            let pt = url.split('/'),
-                mailAccountId;
+            url: /cn_mail\/MailAccounts\/(.+)\/MailFolders(\/.*)?/im,
 
+            doGet: function (ctx) {
 
-            mailAccountId = pt.pop();
-            mailAccountId = pt.pop();
+                const me            = this,
+                    keys = me.extractCompoundKey(ctx.url),
+                    mailAccountId = keys.mailAccountId;
 
-            return {
-                mailAccountId : decodeURIComponent(mailAccountId)
-            };
-        }
+                let ret = {};
 
+                let mailFolders = Ext.Array.filter(
+                    folders,
+                    function (item) {
+                        return item.mailAccountId === "" + mailAccountId;
+                    }
+                );
 
 
+                ret.responseText = Ext.JSON.encode({
+                    data: mailFolders
+                });
 
-    });
+                Ext.Array.forEach(me.responseProps, function (prop) {
+                    if (prop in me) {
+                        ret[prop] = me[prop];
+                    }
+                });
+                return ret;
+
+
+            },
+
+
+            /**
+             * Returns a numeric array with the following values:
+             * mailAccountId, mailFolderId, id
+             *
+             * @param url
+             * @returns {*[]}
+             */
+            extractCompoundKey: function (url) {
+
+                let pt = url.split("/"),
+                    mailAccountId;
+
+
+                mailAccountId = pt.pop();
+                mailAccountId = pt.pop();
+
+                return {
+                    mailAccountId: decodeURIComponent(mailAccountId)
+                };
+            }
+
+
+        });
+
+    }
 
 });

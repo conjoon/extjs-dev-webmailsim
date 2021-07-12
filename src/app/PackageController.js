@@ -28,12 +28,12 @@
  * Simply tags this package to amke sure it can be loaded into a coon.js-Application.
  * Requires PackageSim and makes sure mocks are registered.
  */
-Ext.define('conjoon.dev.cn_mailsim.app.PackageController', {
+Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
 
-    extend : 'coon.core.app.PackageController',
+    extend: "coon.core.app.PackageController",
 
-    requires : [
-        'conjoon.dev.cn_mailsim.data.mail.PackageSim'
+    requires: [
+        "conjoon.dev.cn_mailsim.data.mail.PackageSim"
     ]
 
 });
