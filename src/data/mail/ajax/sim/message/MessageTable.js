@@ -95,7 +95,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
     buildAddresses: function (type, i) {
         // special for tests
-        if (i === 1 && type !== "to") {
+        if (i + "" === 1 + "" && type !== "to") {
             return [];
         }
 
