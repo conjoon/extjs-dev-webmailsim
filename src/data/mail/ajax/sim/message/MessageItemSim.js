@@ -55,6 +55,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     Ext.raise("Not implemented");
                 }
 
+                /* eslint-disable-next-line no-console*/
                 console.log("DELETE MessageItem - ", target, keys);
 
                 let ret = {}, found = false,
@@ -63,6 +64,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     mailFolderId = keys.mailFolderId;
 
                 if (!id) {
+                    /* eslint-disable-next-line no-console*/
                     console.log("DELETE MessageItem - no numeric id specified.");
                     return {success: false};
                 }
@@ -115,6 +117,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                 }
 
                 // MessageDraft
+                /* eslint-disable-next-line no-console*/
                 console.log("POST MessageDraft", ctx, ctx.xhr.options.jsonData);
 
                 var me            = this,
@@ -123,11 +126,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     MessageTable  = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable;
 
                 for (var i in ctx.xhr.options.jsonData) {
-                    if (!ctx.xhr.options.jsonData.hasOwnProperty(i)) {
+                    if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
                         continue;
                     }
 
-                    if (i == "to" || i == "cc" || i == "bcc") {
+                    if (i === "to" || i === "cc" || i === "bcc") {
                         draft[i] = Ext.JSON.decode(ctx.xhr.options.jsonData[i]);
                     } else {
                         draft[i] = ctx.xhr.options.jsonData[i];
@@ -178,12 +181,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                 if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
                     for (var i in ctx.xhr.options.jsonData) {
-                        if (!ctx.xhr.options.jsonData.hasOwnProperty(i)) {
+                        if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
                             continue;
                         }
                         values[i] = ctx.xhr.options.jsonData[i];
                     }
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("PUT " + target, values);
 
 
@@ -205,6 +209,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     };
                     ret.responseText = Ext.JSON.encode(retVal);
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("PUT " + target + ", response: ", retVal);
 
                     return ret;
@@ -212,6 +217,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
 
                 // This is where we trigger an idchange
+                /* eslint-disable-next-line no-console*/
                 console.log("PUT MessageDraft", ctx.xhr.options.jsonData);
 
                 // MESSAGE DRAFT
@@ -221,8 +227,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                 values        = {};
                 keys          = me.extractCompoundKey(ctx.url);
 
-                for (var i in ctx.xhr.options.jsonData) {
-                    if (!ctx.xhr.options.jsonData.hasOwnProperty(i)) {
+                for (i in ctx.xhr.options.jsonData) {
+                    if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
                         continue;
                     }
                     values[i] = ctx.xhr.options.jsonData[i];
@@ -252,7 +258,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                 delete values.localId;
 
-                for (var i in values) {
+                for (i in values) {
                     if (draft[i]) {
                         values[i] = draft[i];
                     }
@@ -269,6 +275,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     data: values
                 });
 
+                /* eslint-disable-next-line no-console*/
                 console.log("PUT MessageDraft, response: ", values);
 
                 return ret;
@@ -281,11 +288,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                 var me = this,
                     keys = me.extractCompoundKey(ctx.url),
-                    idPart  = ctx.url.match(this.url)[1],
-                    filters = ctx.params.filter,
                     id,
                     MessageTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
-                    messageItems = MessageTable.getMessageItems();
+                    messageItems = MessageTable.getMessageItems(),
+                    ret = {},
+                    mailAccountId,
+                    mailFolderId;
+
 
                 if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
                     Ext.raise("Invalid target parameter: " + ctx.params.target);
@@ -293,27 +302,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                 if (ctx.params.target === "MessageBody") {
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET MessageBody ", ctx.url, keys);
                     return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id);
                 }
 
                 if (ctx.params.target === "MessageBodyDraft") {
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET MessageBodyDraft ", ctx.url, keys);
                     return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
                 }
 
                 if (ctx.params.target === "MessageDraft") {
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET MessageDraft ", ctx.url);
-
-                    var me = this,
-                        ret = {},
-                        idPart  = ctx.url.match(this.url)[1],
-                        filters = ctx.params.filter,
-                        mailAccountId, mailFolderId, id,
-                        MessageTable  = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
-                        messageDrafts;
 
                     let keys = me.extractCompoundKey(ctx.url);
 
@@ -346,6 +350,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                         };
                     }
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET MessageDraft, response ", ctx.url);
 
                     return retVal;
@@ -408,12 +413,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                     let entity = isDraft ? "MessageBodyDraft" : "MessageBody";
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET " + entity + ", response, ", retVal);
 
                     return retVal;
                 }
 
                 retVal = {success: false};
+
+                /* eslint-disable-next-line no-console*/
                 console.log("GET MessageBody, response, ", retVal);
                 return retVal;
 
@@ -422,6 +430,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
             postMessageBody: function (ctx) {
 
+                /* eslint-disable-next-line no-console*/
                 console.log("POST MessageBodyDraft", ctx.xhr.options.jsonData);
 
                 var me    = this,
@@ -430,7 +439,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     newRec;
 
                 for (var i in ctx.xhr.options.jsonData) {
-                    if (!ctx.xhr.options.jsonData.hasOwnProperty(i)) {
+                    if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
                         continue;
                     }
 
@@ -467,6 +476,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
 
                 ret.responseText = Ext.JSON.encode(retVal);
 
+                /* eslint-disable-next-line no-console */
                 console.log("POSTED MessageBodyDraft", retVal);
                 return ret;
             },
@@ -485,7 +495,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageItemSim", {
                     id = pt.pop().split("?")[0],
                     mailFolderId,mailAccountId;
 
-                if (id == "MessageItems") {
+                if (id === "MessageItems") {
                     id = undefined;
                     pt.push("foo");
                 }

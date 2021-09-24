@@ -65,7 +65,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
         t.it("updateMessageDraft() - triggers new id", function (t) {
 
-            let items = MessageTable.buildBaseMessageItems(), i;
+            MessageTable.buildBaseMessageItems();
 
             let data = {
                 subject: "foo"
@@ -114,7 +114,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
         t.it("updateMessageBody() - triggers new id", function (t) {
 
-            let items = MessageTable.buildBaseMessageItems();
+            MessageTable.buildBaseMessageItems();
 
             let data = {
                 subject: "foo"
@@ -150,7 +150,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
         t.it("createAttachment() - triggers new id", function (t) {
 
-            let items = MessageTable.buildBaseMessageItems();
+            MessageTable.buildBaseMessageItems();
 
             let data = {
                 subject: "foo"
@@ -206,7 +206,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
         t.it("deleteAttachment() - triggers new id", function (t) {
 
-            let items = MessageTable.buildBaseMessageItems();
+            MessageTable.buildBaseMessageItems();
 
             let data = {
                 subject: "foo"
@@ -257,7 +257,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
         t.it("correct date format for MessageDraft", function (t) {
 
-            let items = MessageTable.buildBaseMessageItems(), i;
+            MessageTable.buildBaseMessageItems();
 
             let data = {
                 subject: "foo"
@@ -265,7 +265,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
 
             let draft = MessageTable.createMessageDraft("dev", "INBOX", data);
 
-            let regex = /^\d{4}\-\d{2}\-\d{2} \d{2}\:\d{2}\:\d{2} \+\d{4}/;
+            let regex = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2} \+\d{4}/;
 
             t.expect(regex.test(draft.date)).toBe(true);
 

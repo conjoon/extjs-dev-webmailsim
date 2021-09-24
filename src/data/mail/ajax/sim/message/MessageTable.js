@@ -45,6 +45,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
     DRAFT_KEY: 0,
 
+    /**
+     *
+     * @param min
+     * @param max
+     *
+     * @return {Number}
+     */
     buildRandomNumber: function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
@@ -65,15 +72,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         var me = this,
             dt  = new Date(),
             y  = me.buildRandomNumber(2007, dt.getFullYear()),
-            m  = me.buildRandomNumber(1, y == dt.getFullYear() ? dt.getMonth() + 1 : 12),
-            d  = me.buildRandomNumber(1, y == dt.getFullYear() && m - 1 == dt.getMonth() ? dt.getDate() : 31),
+            m  = me.buildRandomNumber(1, y === dt.getFullYear() ? dt.getMonth() + 1 : 12),
+            d  = me.buildRandomNumber(1, y === dt.getFullYear() && m - 1 === dt.getMonth() ? dt.getDate() : 31),
             h  = me.buildRandomNumber(
                 0,
-                y == dt.getFullYear() && m - 1 == dt.getMonth() && d == dt.getDate() ? dt.getHours() : 23
+                y === dt.getFullYear() && m - 1 === dt.getMonth() && d === dt.getDate() ? dt.getHours() : 23
             ),
             i  = me.buildRandomNumber(
                 0,
-                y == dt.getFullYear() && m - 1 == dt.getMonth() && d == dt.getDate() ? dt.getMinutes() : 59
+                y === dt.getFullYear() && m - 1 === dt.getMonth() && d === dt.getDate() ? dt.getMinutes() : 59
             ),
             pad = function (v) {
                 return v < 10 ? "0" + v : v;
@@ -88,7 +95,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
     buildAddresses: function (type, i) {
         // special for tests
-        if (i == 1 && type !== "to") {
+        if (i === 1 && type !== "to") {
             return [];
         }
 
@@ -105,16 +112,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         const me = this;
 
         let items = me.messageItems;
+
+        /* eslint-disable-next-line no-console*/
         console.log("REMOVING", record.getId());
 
         for (var i in items) {
 
-            if (!items.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(items, i)) {
                 continue;
             }
 
             if (items[i].id === record.getId()) {
                 delete items[i];
+
+                /* eslint-disable-next-line no-console*/
                 console.log("REMOVED");
                 return;
             }
@@ -237,7 +248,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         }
 
         for (let i in me.messageBodies) {
-            if (!me.messageBodies.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(me.messageBodies, i)) {
                 continue;
             }
             if (me.messageBodies[i]["mailAccountId"] === mailAccountId &&
@@ -276,14 +287,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             key = this.DRAFT_KEY, draftKey = 0, itemKey = 0;
 
         for (var i in drafts) {
-            if (!drafts.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(drafts, i)) {
                 continue;
             }
             draftKey++;
         }
 
-        for (var i in items) {
-            if (!items.hasOwnProperty(i)) {
+        for (i in items) {
+            if (!Object.prototype.hasOwnProperty.call(items, i)) {
                 continue;
             }
             itemKey++;
@@ -307,12 +318,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             drafts = me.getMessageDrafts();
 
         for (var i in drafts) {
-            if (!drafts.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(drafts, i)) {
                 continue;
             }
-            if (drafts[i]["mailAccountId"] == mailAccountId &&
-                drafts[i]["mailFolderId"] == mailFolderId &&
-                drafts[i]["id"] == id) {
+            if (drafts[i]["mailAccountId"] === mailAccountId &&
+                drafts[i]["mailFolderId"] === mailFolderId &&
+                drafts[i]["id"] === id) {
                 return drafts[i];
             }
         }
@@ -333,7 +344,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
         for (var i in me.baseMessageItems) {
 
-            if (!me.baseMessageItems.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(me.baseMessageItems, i)) {
                 continue;
             }
 
@@ -342,7 +353,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             messageDrafts[Ext.id()] = Ext.apply({
                 bcc: bccAddresses,
                 replyTo: i !== 0 && me.buildRandomNumber(0, 1)
-                    ? sender[me.buildRandomNumber(0, 5)]
+                    ? me.getSender()[me.buildRandomNumber(0, 5)]
                     : undefined
             }, baseMessageItems[i]);
 
@@ -403,7 +414,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
     createMessageDraft: function (mailAccountId, mailFolderId, draftData) {
 
-        if (arguments.length != 3) {
+        if (arguments.length !== 3) {
             Ext.raise("Unexpected missing argument");
         }
 
@@ -473,12 +484,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             draft  = me.getMessageDraft(mailAccountId, mailFolderId, id),
             item   = me.getMessageItem(mailAccountId, mailFolderId, id),
             dataItems = [draft, item],
-            dataItems, item, skipDate = false;
+            skipDate = false;
 
         let vals = [];
 
         for (let a in values) {
-            if (!values.hasOwnProperty(a)) {
+            if (!Object.prototype.hasOwnProperty.call(values, a)) {
                 continue;
             }
 
@@ -500,7 +511,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             skipDate = true;
         }
 
-        if (values.mailFolderId && values.mailFolderId != mailFolderId) {
+        if (values.mailFolderId && values.mailFolderId !== mailFolderId) {
             // make sure id changes since mail gets moved!
 
             idChange = true;
@@ -512,7 +523,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
             values.hasAttachments = hasAtt && hasAtt.length ? 1 : 0;
 
-            let prChk = me.updateMessageBody(mailAccountId, mailFolderId, id, {
+            me.updateMessageBody(mailAccountId, mailFolderId, id, {
                 mailFolderId: values.mailFolderId
             }, true); // skip update to prevent possible recursion
 
@@ -534,7 +545,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
             for (var prop in values) {
 
-                if (!currItem.hasOwnProperty(prop)) {
+                if (!Object.prototype.hasOwnProperty.call(currItem, prop)) {
                     // we are updating an existing item with properties that might not
                     // existed previously - dont skip!
                     //continue;
@@ -583,10 +594,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         let messageItems  = me.getMessageItems(),
             messageDrafts = me.getMessageDrafts(),
             messageBodies = me.messageBodies,
-            i, item, draft, body;
+            i, item, body;
 
         for (i in messageItems) {
-            if (!messageItems.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(messageItems, i)) {
                 continue;
             }
             item = messageItems[i];
@@ -603,7 +614,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
 
         for (i in messageDrafts) {
-            if (!messageDrafts.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(messageDrafts, i)) {
                 continue;
             }
             item = messageDrafts[i];
@@ -618,7 +629,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         }
 
         for (i in messageBodies) {
-            if (!messageBodies.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(messageBodies, i)) {
                 continue;
             }
             body = messageBodies[i];
@@ -661,12 +672,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             found = null;
 
         for (var i in items) {
-            if (!items.hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(items, i)) {
                 continue;
             }
-            if (items[i]["mailAccountId"] == mailAccountId &&
-                items[i]["mailFolderId"] == mailFolderId &&
-                items[i]["id"] == id) {
+            if (items[i]["mailAccountId"] === mailAccountId &&
+                items[i]["mailFolderId"] === mailFolderId &&
+                items[i]["id"] === id) {
                 found = items[i];
                 break;
             }
@@ -679,17 +690,16 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
     getMessageItems: function () {
 
         var me               = this,
-            AttachmentTable  = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message
-                .AttachmentTable,
+            AttachmentTable  = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable,
             baseMessageItems = me.buildBaseMessageItems(),
-            messageItems     = subjects = sender = [], attach;
+            messageItems     = [];
 
 
         if (me.messageItems) {
 
             for (var i in me.messageItems) {
 
-                if (!me.messageItems.hasOwnProperty(i)) {
+                if (!Object.prototype.hasOwnProperty.call(me.messageItems, i)) {
                     continue;
                 }
                 me.messageItems[i].previewText = me.buildPreviewText(
@@ -702,7 +712,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             return me.messageItems;
         }
 
-        for (var i in baseMessageItems) {
+        for (i in baseMessageItems) {
 
             messageItems[Ext.id()] = Ext.apply({
                 // leave first one as unread for tests
@@ -725,30 +735,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
         return me.messageItems;
     },
 
-
     /**
-     * Builds the base message items to be used as the data for Sims.
-     *
-     * @return {Array}
+     * @private
      */
-    buildBaseMessageItems: function () {
-        var me = this,
-            baseMessageItems = subjects = sender = [];
-
-        if (me.baseMessageItems) {
-            return me.baseMessageItems;
-        }
-
-        subjects = [
-            "Welcome to conjoon",
-            "Re: Ihre Buchung in der Unterkunft",
-            "Achtung! DVBT Antennen sind bald nutzlos, Thorsten Suckow-Homberg",
-            "Verbindliche Bestellung Banshee Headbadge",
-            "Vielen Dank für Ihre Bestellung",
-            "Monte Walsh [Blu Ray] und mehr aus DVD & Blu Ray Klassiker"
-        ];
-
-        sender = [
+    getSender  () {
+        return [
             {address: "tsuckow@conjoon.org", name: "conjoonadmin"},
             {address: "service@booking.com", name: "Booking.com"},
             {address: "info@ebay.de",        name: "ebay Verkäufer Team"},
@@ -756,8 +747,43 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             {address: "service@otto.de",     name: "Otto GmbH"},
             {address: "info@amazon.de",      name: "Amazon"}
         ];
+    },
 
-        var mailFolderId, mailAccountId = "dev_sys_conjoon_org", mailFolders = [
+
+    /**
+     * @private
+     */
+    getSubjects () {
+        return [
+            "Welcome to conjoon",
+            "Re: Ihre Buchung in der Unterkunft",
+            "Achtung! DVBT Antennen sind bald nutzlos, Thorsten Suckow-Homberg",
+            "Verbindliche Bestellung Banshee Headbadge",
+            "Vielen Dank für Ihre Bestellung",
+            "Monte Walsh [Blu Ray] und mehr aus DVD & Blu Ray Klassiker"
+        ];
+    },
+
+
+    /**
+     * Builds the base message items to be used as the data for Sims.
+     *
+     * @return {Array}
+     */
+    buildBaseMessageItems: function () {
+        const  me = this;
+
+        if (me.baseMessageItems) {
+            return me.baseMessageItems;
+        }
+
+        const
+            sender = me.getSender(),
+            subjects = me.getSubjects(),
+            baseMessageItems = [];
+
+
+        let mailFolderId, mailAccountId = "dev_sys_conjoon_org", mailFolders = [
             "INBOX",
             "INBOX.Sent Messages",
             "INBOX.Junk",
@@ -783,10 +809,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
                 mailAccountId: mailAccountId,
                 testProp: i,
                 messageId: Ext.id(),
-                seen: i == 0 ? false : (me.buildRandomNumber(0, 1) ? true : false),
-                draft: mailFolderId == "INBOX.Drafts"
+                seen: i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false),
+                draft: mailFolderId === "INBOX.Drafts"
                     ? true
-                    : i == 0 ? false : (me.buildRandomNumber(0, 1) ? true : false)
+                    : i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false)
             };
 
 

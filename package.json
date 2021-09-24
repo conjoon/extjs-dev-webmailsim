@@ -79,8 +79,9 @@
     "@coon-js/extjs-link": "file:../../@coon-js/extjs-link",
     "@coon-js/siesta-lib-helper": "file:../../@coon-js/siesta-lib-helper",
     "@l8js/l8": "file:../../@l8js/l8",
+    "eslint": "^7.28.0",
     "local-web-server": "^4.2.1",
-    "siesta-lite": "^5.5.2",
-    "eslint": "^7.28.0"
+    "node-git-hooks": "^1.0.6",
+    "siesta-lite": "^5.5.2"
   }
 }

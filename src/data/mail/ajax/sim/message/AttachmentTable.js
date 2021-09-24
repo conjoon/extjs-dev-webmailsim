@@ -75,7 +75,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
         me.attachments[newKey] = attachments;
 
         for (var i in me.attachments[newKey]) {
-            if (!me.attachments[newKey].hasOwnProperty(i)) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments[newKey], i)) {
                 continue;
             }
             if (moveInfo.mailFolderId) {
@@ -130,7 +130,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
 
         let me  = this,
-            key = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId,
             found = 0;
 
         if (!me.attachments) {
@@ -142,10 +141,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
             for (let i in attChilds) {
                 let att = attChilds[i];
-                if (att.parentMessageItemId == parentMessageItemId &&
-                    att.mailFolderId == mailFolderId &&
-                    att.mailAccountId == mailAccountId &&
-                    att.id == id) {
+                if (att.parentMessageItemId === parentMessageItemId &&
+                    att.mailFolderId === mailFolderId &&
+                    att.mailAccountId === mailAccountId &&
+                    att.id === id) {
                     found = 1;
                     delete me.attachments[a][i];
                     break;
@@ -186,12 +185,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
 
     getAttachments: function (mailAccountId, mailFolderId, parentMessageItemId) {
-        var me         = this,
-            attachments = null,
-            rec,
-            key = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
-
-        let wasEmpty = false;
+        const me = this;
 
         if (!me.attachments) {
             me.attachments = {};
@@ -200,12 +194,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
         let result = null;
 
         for (var a in me.attachments) {
-            if (!me.attachments.hasOwnProperty(a)) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, a)) {
                 continue;
             }
 
             for (var i in me.attachments[a]) {
-                if (!me.attachments[a].hasOwnProperty(i)) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[a], i)) {
                     continue;
                 }
                 if (me.attachments[a][i].mailAccountId === mailAccountId &&
@@ -291,11 +285,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
         let ind = 0;
 
         for (let messageItemId in me.attachments) {
-            if (!me.attachments.hasOwnProperty(messageItemId)) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, messageItemId)) {
                 continue;
             }
             for (let i in me.attachments[messageItemId]) {
-                if (!me.attachments[messageItemId].hasOwnProperty(i)) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[messageItemId], i)) {
                     continue;
                 }
                 if (ind === pos) {
@@ -311,21 +305,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
     getAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, attachmentId) {
 
-        var me            = this,
-            messageItemId = parentMessageItemId,
-            key           = mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
+        const me = this;
 
         if (!me.attachments) {
             me.attachments = {};
         }
 
         for (var a in me.attachments) {
-            if (!me.attachments.hasOwnProperty(a)) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, a)) {
                 continue;
             }
 
             for (var i in me.attachments[a]) {
-                if (!me.attachments[a].hasOwnProperty(i)) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[a], i)) {
                     continue;
                 }
             }

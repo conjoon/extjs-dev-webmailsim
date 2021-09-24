@@ -44,6 +44,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim", {
 
             doPost: function (ctx) {
 
+                /* eslint-disable-next-line no-console*/
                 console.log("POST SendMessage", ctx.xhr.options);
 
                 var me              = this,

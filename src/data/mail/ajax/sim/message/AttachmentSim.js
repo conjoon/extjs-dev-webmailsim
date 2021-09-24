@@ -49,11 +49,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
 
             doDelete: function (ctx) {
 
+                /* eslint-disable-next-line no-console*/
                 console.log("DELETE Attachment", ctx.xhr.options);
 
                 let me = this,
                     keys = me.extractCompoundKey(ctx.url),
-                    ret = {}, found;
+                    ret = {};
 
 
                 let itemData = AttachmentTable.deleteAttachment(
@@ -61,7 +62,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
 
                 let retVal;
 
-                if (itemData == false) {
+                if (itemData === false) {
                     retVal = {
                         success: false
                     };
@@ -83,6 +84,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
                         ret[prop] = me[prop];
                     }
                 });
+
+                /* eslint-disable-next-line no-console*/
                 console.log("DELETING ATTACHMENT, response: ", retVal);
                 return ret;
 
@@ -97,10 +100,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
                     rec        = {},
                     ret        = {};
 
+                /* eslint-disable-next-line no-console*/
                 console.log("POST Attachment", keys, ctx.xhr.options.records[0].data);
 
                 for (var i in ctx.xhr.options.records[0].data) {
-                    if (!ctx.xhr.options.records[0].data.hasOwnProperty(i)) {
+                    if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.records[0].data, i)) {
                         continue;
                     }
 
@@ -139,6 +143,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
 
                 ret.responseText = Ext.JSON.encode(retVal);
 
+                /* eslint-disable-next-line no-console*/
                 console.log("POSTED Attachment, response: ", retVal);
                 return ret;
             },
@@ -149,11 +154,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
                 let keys = me.extractCompoundKey(ctx.url);
 
                 var id  = keys.id,
-                    params  = ctx.params,
-                    filters = params.filter;
+                    params  = ctx.params;
 
                 if (id) {
 
+                    /* eslint-disable-next-line no-console*/
                     console.log("GET", "Attachment", id, params.mailAccountId,
                         params.mailFolderId, params.originalMessageItemId, new Date());
                     return AttachmentTable.getAttachment(
@@ -165,11 +170,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
 
                 } else if (!id)  {
 
-                    attachments = AttachmentTable.getAttachments(
+                    let attachments = AttachmentTable.getAttachments(
                         keys.mailAccountId,
                         keys.mailFolderId,
                         keys.parentMessageItemId
                     );
+
+                    /* eslint-disable-next-line no-console*/
                     console.log(
                         "GET", "Attachments for Message id",
                         keys.mailAccountId,
@@ -196,7 +203,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
                     id = pt.pop().split("?")[0],
                     parentMessageItemId, mailFolderId,mailAccountId;
 
-                if (id == "Attachments") {
+                if (id === "Attachments") {
                     id = undefined;
                     pt.push("foo");
                 }
