@@ -122,7 +122,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
                 continue;
             }
 
-            if (items[i].id === record.getId()) {
+            if (items[i].id +"" === record.getId() + "") {
                 delete items[i];
 
                 /* eslint-disable-next-line no-console*/
@@ -180,7 +180,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             let fkId;
             for (let i in me.messageBodies) {
                 let mb = me.messageBodies[i];
-                if (mb.mailAccountId === mailAccountId && mb.mailFolderId === mailFolderId && mb.id === id) {
+                if (mb.mailAccountId === mailAccountId && mb.mailFolderId === mailFolderId && mb.id + "" === id + "") {
                     fkId = i;
                     break;
                 }
@@ -253,7 +253,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             }
             if (me.messageBodies[i]["mailAccountId"] === mailAccountId &&
                 me.messageBodies[i]["mailFolderId"] === mailFolderId &&
-                me.messageBodies[i]["id"] === id) {
+                me.messageBodies[i]["id"] + "" === id + "") {
                 return me.messageBodies[i];
             }
         }
@@ -323,7 +323,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             }
             if (drafts[i]["mailAccountId"] === mailAccountId &&
                 drafts[i]["mailFolderId"] === mailFolderId &&
-                drafts[i]["id"] === id) {
+                drafts[i]["id"] + "" === id + "") {
                 return drafts[i];
             }
         }
@@ -604,7 +604,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
             if (item["mailAccountId"] === mailAccountId &&
                 item["mailFolderId"] === mailFolderId &&
-                item["id"] === id) {
+                item["id"] + "" === id + "") {
                 delete messageItems[i];
                 item["id"] = newKey;
                 messageItems[newKey] = item;
@@ -620,7 +620,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             item = messageDrafts[i];
             if (item["mailAccountId"] === mailAccountId &&
                 item["mailFolderId"] === mailFolderId &&
-                item["id"] === id) {
+                item["id"] + "" === id + "") {
                 delete messageDrafts[i];
                 item["id"] = newKey;
                 messageDrafts[newKey] = item;
@@ -635,7 +635,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             body = messageBodies[i];
             if (body["mailAccountId"] === mailAccountId &&
                 body["mailFolderId"] === mailFolderId &&
-                body["id"] === id) {
+                body["id"] + "" === id + "") {
                 delete messageBodies[i];
                 body["id"] = newKey;
                 messageBodies[newKey] = body;
@@ -677,7 +677,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             }
             if (items[i]["mailAccountId"] === mailAccountId &&
                 items[i]["mailFolderId"] === mailFolderId &&
-                items[i]["id"] === id) {
+                items[i]["id"] + "" === id + "") {
                 found = items[i];
                 break;
             }

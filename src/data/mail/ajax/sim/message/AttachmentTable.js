@@ -141,10 +141,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
             for (let i in attChilds) {
                 let att = attChilds[i];
+
                 if (att.parentMessageItemId === parentMessageItemId &&
                     att.mailFolderId === mailFolderId &&
                     att.mailAccountId === mailAccountId &&
-                    att.id === id) {
+                    att.id + "" === id + "") {
                     found = 1;
                     delete me.attachments[a][i];
                     break;
@@ -204,7 +205,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
                 }
                 if (me.attachments[a][i].mailAccountId === mailAccountId &&
                     me.attachments[a][i].mailFolderId === mailFolderId &&
-                    me.attachments[a][i].parentMessageItemId === parentMessageItemId) {
+                    me.attachments[a][i].parentMessageItemId + "" === parentMessageItemId  + "") {
                     if (result === null) {
                         result = [];
                     }
@@ -324,8 +325,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
             if (me.attachments[a][i].mailAccountId === mailAccountId &&
                 me.attachments[a][i].mailFolderId === mailFolderId &&
-                me.attachments[a][i].parentMessageItemId === parentMessageItemId &&
-                me.attachments[a][i].id === attachmentId) {
+                me.attachments[a][i].parentMessageItemId + "" === parentMessageItemId + "" &&
+                me.attachments[a][i].id + "" === attachmentId) {
                 return me.attachments[a][i];
             }
         }
