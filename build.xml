@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<project name="dev-cn_mailsim" default=".help">
+<project name="extjs-dev-webmailsim" default=".help">
 
     <script language="javascript">
         <![CDATA[

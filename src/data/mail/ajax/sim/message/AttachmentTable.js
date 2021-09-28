@@ -1,7 +1,7 @@
 /**
  * conjoon
- * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * extjs-dev-webmailsim
+ * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,27 +26,27 @@
 /**
  *
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", {
 
-    singleton : true,
+    singleton: true,
 
-    attachments : null,
+    attachments: null,
 
-    largestAttachmentId : 0,
+    largestAttachmentId: 0,
 
-    getRandom : function(min, max) {
+    getRandom: function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
-    moveAttachments : function(mailAccountId, mailFolderId, parentMessageItemId, moveInfo) {
+    moveAttachments: function (mailAccountId, mailFolderId, parentMessageItemId, moveInfo) {
 
         const me     = this,
-              key    = [mailAccountId, mailFolderId, parentMessageItemId].join('-'),
-              newKey = [
-                  mailAccountId,
-                  moveInfo.mailFolderId ? moveInfo.mailFolderId : mailFolderId,
-                  parentMessageItemId
-              ].join('-');
+            key    = [mailAccountId, mailFolderId, parentMessageItemId].join("-"),
+            newKey = [
+                mailAccountId,
+                moveInfo.mailFolderId ? moveInfo.mailFolderId : mailFolderId,
+                moveInfo.parentMessageItemId ? moveInfo.parentMessageItemId : parentMessageItemId
+            ].join("-");
 
         if (key === newKey) {
             return;
@@ -74,18 +74,26 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
         me.attachments[newKey] = attachments;
 
-        for (let i = 0, len = me.attachments[newKey].length; i < len; i++) {
-            me.attachments[newKey][i]['mailFolderId'] = moveInfo.mailFolderId;
+        for (var i in me.attachments[newKey]) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments[newKey], i)) {
+                continue;
+            }
+            if (moveInfo.mailFolderId) {
+                me.attachments[newKey][i]["mailFolderId"] = moveInfo.mailFolderId;
+            }
+            if (moveInfo.parentMessageItemId) {
+                me.attachments[newKey][i]["parentMessageItemId"] = moveInfo.parentMessageItemId;
+            }
         }
 
         return me.attachments[newKey];
 
     },
 
-    createAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, attachmentData) {
+    createAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, attachmentData) {
 
         var me            = this,
-            key           =  mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
+            key           =  mailAccountId + "-" + mailFolderId + "-" + parentMessageItemId;
 
         if (!me.attachments) {
             me.attachments = {};
@@ -99,14 +107,22 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
         me.attachments[key].push(attachmentData);
 
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-            mailAccountId, mailFolderId, parentMessageItemId, {}
+        let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+            mailAccountId, mailFolderId, parentMessageItemId, {}, true
         );
+        if (!itemData)debugger;
+        me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {
+            parentMessageItemId: itemData.id
+        });
 
-        return attachmentData;
+        return Ext.apply(attachmentData, {
+            mailAccountId: itemData.mailAccountId,
+            mailFolderId: itemData.mailFolderId,
+            parentMessageItemId: itemData.id
+        });
     },
 
-    deleteAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, id) {
+    deleteAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, id) {
 
         if (arguments.length < 4) {
             Ext.raise("Unexpected missing arguments.");
@@ -114,60 +130,101 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
 
 
         let me  = this,
-            key = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId,
             found = 0;
 
         if (!me.attachments) {
             me.attachments = {};
         }
 
-        if (me.attachments[key]) {
-            let attach = me.attachments[key];
-            for (let i = attach.length - 1; i >= 0; i--) {
-                if (attach[i].id == id) {
-                    found++;
-                    attach.splice(i, 1);
+        for (let a in me.attachments) {
+            let attChilds = me.attachments[a];
+
+            for (let i in attChilds) {
+                let att = attChilds[i];
+
+                if (att.parentMessageItemId === parentMessageItemId &&
+                    att.mailFolderId === mailFolderId &&
+                    att.mailAccountId === mailAccountId &&
+                    att.id + "" === id + "") {
+                    found = 1;
+                    delete me.attachments[a][i];
+                    break;
                 }
             }
         }
 
-        if (found > 0) {
-            conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-                mailAccountId, mailFolderId, parentMessageItemId, {});
-            if (me.attachments[key].length == 0) {
-                me.attachments[key] = null;
+        /*
+        if (me.attachments[key]) {
+            let attach = me.attachments[key];
+            for (var i in attach) {
+                if (!attach.hasOwnProperty(i)) {
+                    continue;
+                }
+                if (attach[i].id == id) {
+                    found++;
+                    delete attach[i];
+                }
             }
+        }*/
+
+        if (found > 0) {
+            let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+                mailAccountId, mailFolderId, parentMessageItemId, {}, true);
+
+            me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {parentMessageItemId: itemData.id});
+
+            return {
+                parentMessageItemId: itemData.id,
+                mailAccountId: itemData.mailAccountId,
+                mailFolderId: itemData.mailFolderId
+            };
         }
 
-        return found;
+        return false;
+
     },
 
 
-    getAttachments : function(mailAccountId, mailFolderId, parentMessageItemId) {
-        var me         = this,
-            attachments = null,
-            rec,
-            key = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
-
-        let wasEmpty = false;
+    getAttachments: function (mailAccountId, mailFolderId, parentMessageItemId) {
+        const me = this;
 
         if (!me.attachments) {
-            wasEmpty = true;
             me.attachments = {};
         }
 
-        if (me.attachments.hasOwnProperty(key)) {
-            return me.attachments[key];
+        let result = null;
+
+        for (var a in me.attachments) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, a)) {
+                continue;
+            }
+
+            for (var i in me.attachments[a]) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[a], i)) {
+                    continue;
+                }
+                if (me.attachments[a][i].mailAccountId === mailAccountId &&
+                    me.attachments[a][i].mailFolderId === mailFolderId &&
+                    me.attachments[a][i].parentMessageItemId + "" === parentMessageItemId  + "") {
+                    if (result === null) {
+                        result = [];
+                    }
+
+                    result.push(me.attachments[a][i]);
+                }
+            }
+
+
         }
 
-        return null;
+        return result;
     },
 
 
-    createRandomAttachments : function(mailAccountId, mailFolderId, parentMessageItemId) {
+    createRandomAttachments: function (mailAccountId, mailFolderId, parentMessageItemId) {
 
         const me = this,
-              key = [mailAccountId, mailFolderId, parentMessageItemId].join('-');
+            key = [mailAccountId, mailFolderId, parentMessageItemId].join("-");
 
         let attachmentNames = [
                 "IMG3701",
@@ -177,18 +234,18 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
                 "architecture_draft"
             ],
             attachmentTypes = [
-                {type : 'application/pdf', extension : 'pdf'},
-                {type : 'image/jpg',       extension : 'jpg'},
-                {type : 'application/x-rar-compressed', extension : 'rar'},
-                {type : 'application/zip', extension : 'zip'},
-                {type : 'text/plain', extension : 'txt'}
+                {type: "application/pdf", extension: "pdf"},
+                {type: "image/jpg",       extension: "jpg"},
+                {type: "application/x-rar-compressed", extension: "rar"},
+                {type: "application/zip", extension: "zip"},
+                {type: "text/plain", extension: "txt"}
             ],
             attachmentSizes = [
-                '24233',
-                '23532553253',
-                '6588668',
-                '23434',
-                '46337773'
+                "24233",
+                "23532553253",
+                "6588668",
+                "23434",
+                "46337773"
             ], rec;
 
         if (!me.attachments) {
@@ -203,14 +260,14 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
             }
 
             rec = {
-                id                  : ++me.largestAttachmentId,
-                parentMessageItemId : parentMessageItemId,
-                mailFolderId        : mailFolderId,
-                mailAccountId       : mailAccountId,
-                text                : attachmentNames[me.getRandom(0, 4)] + '.' +
+                id: ++me.largestAttachmentId,
+                parentMessageItemId: parentMessageItemId,
+                mailFolderId: mailFolderId,
+                mailAccountId: mailAccountId,
+                text: attachmentNames[me.getRandom(0, 4)] + "." +
                 attachmentTypes[me.getRandom(0, 4)].extension,
-                type                : attachmentTypes[me.getRandom(0, 4)].type,
-                size                : attachmentSizes[me.getRandom(0, 4)]
+                type: attachmentTypes[me.getRandom(0, 4)].type,
+                size: attachmentSizes[me.getRandom(0, 4)]
             };
 
             me.attachments[key].push(rec);
@@ -222,14 +279,20 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
     },
 
 
-    getAttachmentAt : function(pos) {
+    getAttachmentAt: function (pos) {
 
         const me = this;
 
         let ind = 0;
 
         for (let messageItemId in me.attachments) {
-            for (let i = 0, len = me.attachments[messageItemId].length; i < len; i++) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, messageItemId)) {
+                continue;
+            }
+            for (let i in me.attachments[messageItemId]) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[messageItemId], i)) {
+                    continue;
+                }
                 if (ind === pos) {
                     return me.attachments[messageItemId][i];
                 }
@@ -241,29 +304,37 @@ Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable', 
     },
 
 
-    getAttachment : function(mailAccountId, mailFolderId, parentMessageItemId, attachmentId) {
+    getAttachment: function (mailAccountId, mailFolderId, parentMessageItemId, attachmentId) {
 
-        var me            = this,
-            messageItemId = parentMessageItemId,
-            key           = mailAccountId + '-' + mailFolderId + '-' + parentMessageItemId;
+        const me = this;
 
         if (!me.attachments) {
             me.attachments = {};
         }
 
+        for (var a in me.attachments) {
+            if (!Object.prototype.hasOwnProperty.call(me.attachments, a)) {
+                continue;
+            }
 
-        if (me.attachments[key]) {
-            for (var i = 0, len = me.attachments[key].length; i < len; i++) {
-                if (me.attachments[key][i].id == attachmentId) {
-                    return me.attachments[key][i];
+            for (var i in me.attachments[a]) {
+                if (!Object.prototype.hasOwnProperty.call(me.attachments[a], i)) {
+                    continue;
                 }
-            };
+            }
+
+            if (me.attachments[a][i].mailAccountId === mailAccountId &&
+                me.attachments[a][i].mailFolderId === mailFolderId &&
+                me.attachments[a][i].parentMessageItemId + "" === parentMessageItemId + "" &&
+                me.attachments[a][i].id + "" === attachmentId) {
+                return me.attachments[a][i];
+            }
         }
 
         return null;
     },
 
-    resetAll : function() {
+    resetAll: function () {
         const me = this;
 
         me.attachments = null;

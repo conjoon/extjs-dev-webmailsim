@@ -1,7 +1,7 @@
 /**
  * conjoon
- * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * extjs-dev-webmailsim
+ * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -26,67 +26,72 @@
 /**
  * Ext.ux.ajax.SimManager hook for sending MessageDrafts
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.SendMessageSim", {
 
-    requires : [
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable'
-    ]
+    singleton: true,
 
-}, function() {
+    requires: [
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable"
+    ],
 
-    Ext.ux.ajax.SimManager.register({
-        type : 'json',
+    init: function () {
 
-        url  : /cn_mail\/SendMessage(\/\d+)?/,
+        Ext.ux.ajax.SimManager.register({
+            type: "json",
 
-        doPost : function(ctx) {
+            url: /cn_mail\/SendMessage(\/\d+)?/,
 
-            console.log("POST SendMessage", ctx.xhr.options);
+            doPost: function (ctx) {
 
-            var me              = this,
-                ret             = {},
-                MessageTable    = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
-                id              = ctx.xhr.options.params.id,
-                mailAccountId   = ctx.xhr.options.params.mailAccountId,
-                mailFolderId    = ctx.xhr.options.params.mailFolderId,
-                draft           = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
+                /* eslint-disable-next-line no-console*/
+                console.log("POST SendMessage", ctx.xhr.options);
+
+                var me              = this,
+                    ret             = {},
+                    MessageTable    = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
+                    id              = ctx.xhr.options.params.id,
+                    mailAccountId   = ctx.xhr.options.params.mailAccountId,
+                    mailFolderId    = ctx.xhr.options.params.mailFolderId,
+                    draft           = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
 
 
-            if (draft.xCnDraftInfo) {
-                let [accountId, folderId, id] = Ext.decode(atob(draft.xCnDraftInfo));
-                let items = MessageTable.getMessageItems();
-                for (let i = 0, len = items.length; i < len; i++) {
-                    if (items[i].mailAccountId === accountId && items[i].id === id &&
-                        items[i].mailFolderId === folderId) {
-                        MessageTable.updateAllItemData(
-                            items[i].mailAccountId, items[i].mailFolderId, items[i].id,
-                            {answered : true});
-                        break;
+                if (draft.xCnDraftInfo) {
+                    let [accountId, folderId, id] = Ext.decode(atob(draft.xCnDraftInfo));
+                    let items = MessageTable.getMessageItems();
+                    for (let i in items) {
+                        if (items[i].mailAccountId === accountId && items[i].id === id &&
+                            items[i].mailFolderId === folderId) {
+                            MessageTable.updateAllItemData(
+                                items[i].mailAccountId, items[i].mailFolderId, items[i].id,
+                                {answered: true});
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (draft['subject'] === 'SENDFAIL') {
-                ret.responseText = Ext.JSON.encode({
-                    success : false
+                if (draft["subject"] === "SENDFAIL") {
+                    ret.responseText = Ext.JSON.encode({
+                        success: false
+                    });
+                    return ret;
+                }
+
+                Ext.Array.forEach(me.responseProps, function (prop) {
+                    if (prop in me) {
+                        ret[prop] = me[prop];
+                    }
                 });
+
+                ret.responseText = Ext.JSON.encode({
+                    success: true
+                });
+
                 return ret;
             }
+        });
 
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
 
-            ret.responseText = Ext.JSON.encode({
-                success       : true
-            });
-
-            return ret;
-        }
-    });
-
+    }
 
 });

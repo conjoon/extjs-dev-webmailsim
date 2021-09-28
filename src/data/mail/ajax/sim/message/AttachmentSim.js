@@ -1,7 +1,7 @@
 /**
  * conjoon
- * dev-cn_mailsim
- * Copyright (C) 2019 Thorsten Suckow-Homberg https://github.com/conjoon/dev-cn_mailsim
+ * extjs-dev-webmailsim
+ * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,172 +28,202 @@
  * and {@link conjoon.dev.cn_mailsim.model.mail.message.DraftAttachment}
  * data.
  */
-Ext.define('conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim', {
+Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentSim", {
 
-    requires : [
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable',
-        'conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable'
-    ]
+    singleton: true,
+    
+    requires: [
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable",
+        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable"
+    ],
+    
+    init: function () {
 
-}, function() {
+        var AttachmentTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable;
 
-    var AttachmentTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable;
+        Ext.ux.ajax.SimManager.register({
+            type: "json",
 
-    Ext.ux.ajax.SimManager.register({
-        type : 'json',
+            url: /cn_mail\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?/im,
 
-        url : /cn_mail\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?/im,
+            doDelete: function (ctx) {
 
-        doDelete : function(ctx) {
+                /* eslint-disable-next-line no-console*/
+                console.log("DELETE Attachment", ctx.xhr.options);
 
-            console.log("DELETE Attachment", ctx.xhr.options);
-
-            let me  = this,
-                keys = me.extractCompoundKey(ctx.url),
-                ret = {}, found;
+                let me = this,
+                    keys = me.extractCompoundKey(ctx.url),
+                    ret = {};
 
 
-            found = AttachmentTable.deleteAttachment(
-                keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
+                let itemData = AttachmentTable.deleteAttachment(
+                    keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
 
-            ret.responseText = Ext.JSON.encode({
-                success :true
-            });
+                let retVal;
 
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
+                if (itemData === false) {
+                    retVal = {
+                        success: false
+                    };
+                } else {
+                    retVal = {
+                        success: true,
+                        data: {
+                            id: keys.id,
+                            parentMessageItemId: itemData.parentMessageItemId,
+                            mailAccountId: itemData.mailAccountId,
+                            mailFolderId: itemData.mailFolderId
+                        }
+                    };
                 }
-            });
-            return ret;
+                ret.responseText = Ext.JSON.encode(retVal);
 
-        },
+                Ext.Array.forEach(me.responseProps, function (prop) {
+                    if (prop in me) {
+                        ret[prop] = me[prop];
+                    }
+                });
 
-        doPost : function(ctx) {
+                /* eslint-disable-next-line no-console*/
+                console.log("DELETING ATTACHMENT, response: ", retVal);
+                return ret;
 
-            const me = this;
+            },
 
-            let keys       = me.extractCompoundKey(ctx.url),
-                attachment = {},
-                rec        = {},
-                ret        = {};
+            doPost: function (ctx) {
 
-            console.log("POST Attachment", keys, ctx.xhr.options.records[0].data);
+                const me = this;
 
-            for (var i in ctx.xhr.options.records[0].data) {
-                if (!ctx.xhr.options.records[0].data.hasOwnProperty(i)) {
-                    continue;
+                let keys       = me.extractCompoundKey(ctx.url),
+                    attachment = {},
+                    rec        = {},
+                    ret        = {};
+
+                /* eslint-disable-next-line no-console*/
+                console.log("POST Attachment", keys, ctx.xhr.options.records[0].data);
+
+                for (var i in ctx.xhr.options.records[0].data) {
+                    if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.records[0].data, i)) {
+                        continue;
+                    }
+
+                    attachment[i] = ctx.xhr.options.records[0].data[i];
                 }
 
-                attachment[i] = ctx.xhr.options.records[0].data[i];
-            }
-
-            rec = AttachmentTable.createAttachment(
-                keys.mailAccountId,
-                keys.mailFolderId,
-                keys.parentMessageItemId,
-                attachment
-            );
-
-            conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
-                keys.mailAccountId,
-                keys.mailFolderId,
-                keys.parentMessageItemId,
-                {hasAttachments : 1}
-            );
-
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
-
-            ret.responseText = Ext.JSON.encode({
-                data : {
-                    id                  : rec.id,
-                    parentMessageItemId : rec.parentMessageItemId,
-                    mailAccountId       : rec.mailAccountId,
-                    mailFolderId        : rec.mailFolderId,
-                    success             : true
-                }
-            });
-
-            return ret;
-        },
-
-        data: function(ctx) {
-            const me = this;
-
-            let keys = me.extractCompoundKey(ctx.url);
-
-            var id  = keys.id,
-                params  = ctx.params,
-                filters = params.filter;
-
-            if (id) {
-
-                console.log("GET", "Attachment", id, params.mailAccountId,
-                    params.mailFolderId, params.originalMessageItemId, new Date());
-                return AttachmentTable.getAttachment(
+                rec = AttachmentTable.createAttachment(
                     keys.mailAccountId,
                     keys.mailFolderId,
                     keys.parentMessageItemId,
-                    keys.id
+                    attachment
                 );
 
-            } else if (!id)  {
+                conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+                    rec.mailAccountId,
+                    rec.mailFolderId,
+                    rec.parentMessageItemId,
+                    {hasAttachments: 1}
+                );
 
-                attachments = AttachmentTable.getAttachments(
-                    keys.mailAccountId,
-                    keys.mailFolderId,
-                    keys.parentMessageItemId
-                );
-                console.log(
-                    "GET", "Attachments for Message id",
-                    keys.mailAccountId,
-                    keys.mailFolderId,
-                    keys.parentMessageItemId,
-                    new Date(), attachments
-                );
-                return attachments;
-            } else {
-                return [{text : "NOT SUPPORTED"}];
+                Ext.Array.forEach(me.responseProps, function (prop) {
+                    if (prop in me) {
+                        ret[prop] = me[prop];
+                    }
+                });
+
+                let retVal = {
+                    data: {
+                        id: rec.id,
+                        parentMessageItemId: rec.parentMessageItemId,
+                        mailAccountId: rec.mailAccountId,
+                        mailFolderId: rec.mailFolderId,
+                        success: true
+                    }
+                };
+
+                ret.responseText = Ext.JSON.encode(retVal);
+
+                /* eslint-disable-next-line no-console*/
+                console.log("POSTED Attachment, response: ", retVal);
+                return ret;
+            },
+
+            data: function (ctx) {
+                const me = this;
+
+                let keys = me.extractCompoundKey(ctx.url);
+
+                var id  = keys.id,
+                    params  = ctx.params;
+
+                if (id) {
+
+                    /* eslint-disable-next-line no-console*/
+                    console.log("GET", "Attachment", id, params.mailAccountId,
+                        params.mailFolderId, params.originalMessageItemId, new Date());
+                    return AttachmentTable.getAttachment(
+                        keys.mailAccountId,
+                        keys.mailFolderId,
+                        keys.parentMessageItemId,
+                        keys.id
+                    );
+
+                } else if (!id)  {
+
+                    let attachments = AttachmentTable.getAttachments(
+                        keys.mailAccountId,
+                        keys.mailFolderId,
+                        keys.parentMessageItemId
+                    );
+
+                    /* eslint-disable-next-line no-console*/
+                    console.log(
+                        "GET", "Attachments for Message id",
+                        keys.mailAccountId,
+                        keys.mailFolderId,
+                        keys.parentMessageItemId,
+                        new Date(), attachments
+                    );
+                    return attachments;
+                } else {
+                    return [{text: "NOT SUPPORTED"}];
+                }
+            },
+
+            /**
+             * Returns a numeric array with the following values:
+             * mailAccountId, mailFolderId, id
+             *
+             * @param url
+             * @returns {*[]}
+             */
+            extractCompoundKey: function (url) {
+
+                let pt = url.split("/"),
+                    id = pt.pop().split("?")[0],
+                    parentMessageItemId, mailFolderId,mailAccountId;
+
+                if (id === "Attachments") {
+                    id = undefined;
+                    pt.push("foo");
+                }
+
+                parentMessageItemId = pt.pop();
+                parentMessageItemId = pt.pop();
+                mailFolderId = pt.pop();
+                mailFolderId = pt.pop();
+                mailAccountId = pt.pop();
+                mailAccountId = pt.pop();
+
+                return {
+                    mailAccountId: decodeURIComponent(mailAccountId),
+                    mailFolderId: decodeURIComponent(mailFolderId),
+                    parentMessageItemId: decodeURIComponent(parentMessageItemId),
+                    id: id ? decodeURIComponent(id) : undefined
+                };
             }
-        },
+        });
 
-        /**
-         * Returns a numeric array with the following values:
-         * mailAccountId, mailFolderId, id
-         *
-         * @param url
-         * @returns {*[]}
-         */
-        extractCompoundKey : function(url) {
-
-            let pt = url.split('/'),
-                id = pt.pop().split('?')[0],
-                parentMessageItemId, mailFolderId,mailAccountId;
-
-            if (id == 'Attachments') {
-                id = undefined;
-                pt.push('foo');
-            }
-
-            parentMessageItemId = pt.pop();
-            parentMessageItemId = pt.pop();
-            mailFolderId = pt.pop();
-            mailFolderId = pt.pop();
-            mailAccountId = pt.pop();
-            mailAccountId = pt.pop();
-
-            return {
-                mailAccountId : decodeURIComponent(mailAccountId),
-                mailFolderId : decodeURIComponent(mailFolderId),
-                parentMessageItemId : decodeURIComponent(parentMessageItemId),
-                id : id ? decodeURIComponent(id) : undefined
-            };
-        }
-    });
+    }
 
 });

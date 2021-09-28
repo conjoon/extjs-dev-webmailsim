@@ -1,3 +1,3 @@
-# dev-cn_mailsim/licenses
+# extjs-dev-webmailsim/licenses
 
 This folder contains the supported licenses for third-party use.

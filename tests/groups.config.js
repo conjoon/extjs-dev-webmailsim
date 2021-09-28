@@ -23,23 +23,30 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/**
- *
- */
-Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.Init", {
-    requires: [
-        "Ext.ux.ajax.JsonSimlet",
-        "Ext.ux.ajax.SimManager"
-    ],
+export default [{
+    group: "universal",
+    items: [{
+        group: "app",
+        items: [
+            "src/app/PackageControllerTest.js"
+        ]
+    }, {
+        group: "data",
+        items: [{
+            group: "mail",
 
-    singleton: true,
-
-    constructor: function () {
-
-        Ext.ux.ajax.SimManager.init({
-            delay: 1,
-            defaultSimlet: null
-        });
-
-    }
-});
+            items: [{
+                group: "ajax",
+                items: [{
+                    group: "sim",
+                    items: [{
+                        group: "message",
+                        items: [
+                            "src/data/mail/ajax/sim/message/MessageTableTest.js"
+                        ]
+                    }]
+                }]
+            }]
+        }]
+    }]
+}];
