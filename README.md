@@ -7,18 +7,22 @@ When using this package, all backend requests of `extjs-app-webmail` will be rep
 npm install --save-dev @conjoon/extjs-dev-webmailsim  
 ```
 
-## Post-Install
-[@coon-js/extjs-link](https://npmjs.org/coon-js/extjs-link) will start once the package was installed and guide you
-through the process of creating symlinks to an existing ExtJS sdk installation.
-This is only required if you want to run the tests (`./tests`), as [Siesta](https//npmjs.org/siesta-lite) relies on
-an existing ExtJS installation.
+If you want to develop with this package, run the `build:dev`-script afterwards:
+```bash
+npm run build:dev
+```
+Testing environment will then be available via
+
+```bash
+npm test
+```
 
 ## Usage
 Simply update the app.json of the conjoon-application
 by specifying this package in the `uses`-property in either the `development` and/or `prodution` section:
 
 *Example:*
-````javascript
+```javascript
 "development": {
         "uses" : [
             "extjs-app-webmail",
@@ -32,7 +36,7 @@ by specifying this package in the `uses`-property in either the `development` an
             "extjs-app-imapuser"
         ]
 }
-````
+```
 
 Notice how in the example above all backend requests made by the [extjs-app-webmail](https://github.com/conjoon/extjs-app-webmail) package
 will be intercepted by the backend-mocks of the `extjs-dev-webmailsim` package when using the development-version.
