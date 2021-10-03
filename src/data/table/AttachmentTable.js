@@ -26,7 +26,7 @@
 /**
  *
  */
-Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", {
+Ext.define("conjoon.dev.cn_mailsim.data.table.AttachmentTable", {
 
     singleton: true,
 
@@ -107,7 +107,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
 
         me.attachments[key].push(attachmentData);
 
-        let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+        let itemData = conjoon.dev.cn_mailsim.data.table.MessageTable.updateAllItemData(
             mailAccountId, mailFolderId, parentMessageItemId, {}, true
         );
         if (!itemData)debugger;
@@ -168,7 +168,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable", 
         }*/
 
         if (found > 0) {
-            let itemData = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable.updateAllItemData(
+            let itemData = conjoon.dev.cn_mailsim.data.table.MessageTable.updateAllItemData(
                 mailAccountId, mailFolderId, parentMessageItemId, {}, true);
 
             me.moveAttachments(mailAccountId, mailFolderId, parentMessageItemId, {parentMessageItemId: itemData.id});

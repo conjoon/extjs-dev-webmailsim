@@ -23,13 +23,13 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", function (t) {
+StartTest(t => {
 
 
-    t.requireOk("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", function () {
+    t.requireOk("conjoon.dev.cn_mailsim.data.table.MessageTable", function () {
 
-        const MessageTable    = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable,
-            AttachmentTable = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable;
+        const MessageTable    = conjoon.dev.cn_mailsim.data.table.MessageTable,
+            AttachmentTable = conjoon.dev.cn_mailsim.data.table.AttachmentTable;
 
         MessageTable.ITEM_LENGTH = 5;
 
@@ -39,7 +39,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("buildBaseMessageItems()", function (t) {
+        t.it("buildBaseMessageItems()", t => {
 
             const ITEM_LENGTH = MessageTable.ITEM_LENGTH;
             let items = MessageTable.buildBaseMessageItems(), i;
@@ -63,7 +63,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("updateMessageDraft() - triggers new id", function (t) {
+        t.it("updateMessageDraft() - triggers new id", t => {
 
             MessageTable.buildBaseMessageItems();
 
@@ -112,7 +112,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("updateMessageBody() - triggers new id", function (t) {
+        t.it("updateMessageBody() - triggers new id", t => {
 
             MessageTable.buildBaseMessageItems();
 
@@ -148,7 +148,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("createAttachment() - triggers new id", function (t) {
+        t.it("createAttachment() - triggers new id", t => {
 
             MessageTable.buildBaseMessageItems();
 
@@ -204,7 +204,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("deleteAttachment() - triggers new id", function (t) {
+        t.it("deleteAttachment() - triggers new id", t => {
 
             MessageTable.buildBaseMessageItems();
 
@@ -255,7 +255,7 @@ describe("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTableTest", f
         });
 
 
-        t.it("correct date format for MessageDraft", function (t) {
+        t.it("correct date format for MessageDraft", t => {
 
             MessageTable.buildBaseMessageItems();
 

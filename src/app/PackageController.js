@@ -25,15 +25,50 @@
 
 /**
  * PackageController for the extjs-dev-webmailsim packages.
- * Simply tags this package to amke sure it can be loaded into a coon.js-Application.
- * Requires PackageSim and makes sure mocks are registered.
+ * Inits the simlets available with this package.
  */
 Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
 
     extend: "coon.core.app.PackageController",
 
     requires: [
-        "conjoon.dev.cn_mailsim.data.mail.PackageSim"
-    ]
+        "Ext.ux.ajax.SimManager",
+        "conjoon.dev.cn_mailsim.data.AttachmentSim",
+        "conjoon.dev.cn_mailsim.data.MailAccountSim",
+        "conjoon.dev.cn_mailsim.data.MailFolderSim",
+        "conjoon.dev.cn_mailsim.data.MessageItemSim",
+        "conjoon.dev.cn_mailsim.data.SendMessageSim"
+    ],
 
+    /**
+     * Initializes the package with the simlets.
+     * @param app
+     */
+    init (app) {
+        "use strict";
+
+        const
+            me = this,
+            config = app.getPackageConfig(me);
+        
+        Object.entries({
+            "conjoon.dev.cn_mailsim.data.AttachmentSim": config.attachment,
+            "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount,
+            "conjoon.dev.cn_mailsim.data.MailFolderSim": config.mailFolder,
+            "conjoon.dev.cn_mailsim.data.MessageItemSim": config.messageItem,
+            "conjoon.dev.cn_mailsim.data.SendMessageSim": config.sendMessage
+        }).forEach((cls, config) => {
+
+            if (config.enabled)  {
+                Ext.ux.ajax.SimManager.register(
+                    Ext.create(cls, {
+                        url: new RegExp(config.url, "im"),
+                        delay: config.delay
+                    })
+                );
+            }
+             
+        });
+
+    }
 });

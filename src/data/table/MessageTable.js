@@ -26,12 +26,12 @@
 /**
  *
  */
-Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
+Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
 
     singleton: true,
 
     requires: [
-        "conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable"
+        "conjoon.dev.cn_mailsim.data.table.AttachmentTable"
     ],
 
 
@@ -207,7 +207,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
             let item = me.updateAllItemData(mailAccountId, mailFolderId, id, {}, true);
 
-            conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+            conjoon.dev.cn_mailsim.data.table.AttachmentTable.moveAttachments(
                 mailAccountId, mailFolderId, id, {parentMessageItemId: item.id}
             );
         }
@@ -385,7 +385,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
         let draft = me.updateAllItemData(mailAccountId, mailFolderId, id, values, changeId);
 
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+        conjoon.dev.cn_mailsim.data.table.AttachmentTable.moveAttachments(
             mailAccountId, mailFolderId, id, {parentMessageItemId: draft.id}
         );
 
@@ -404,7 +404,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
         let item = me.updateAllItemData(mailAccountId, mailFolderId, id, values, changeId);
 
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+        conjoon.dev.cn_mailsim.data.table.AttachmentTable.moveAttachments(
             mailAccountId, mailFolderId, id, {parentMessageItemId: item.id}
         );
 
@@ -426,7 +426,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             date          = Ext.util.Format.date(new Date(), "Y-m-d H:i:s") + " +0000";
 
         //manually fake attachments and messageBody
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.attachments[id] = null;
+        conjoon.dev.cn_mailsim.data.table.AttachmentTable.attachments[id] = null;
 
         var mb = me.getMessageBody(mailAccountId, mailFolderId, id);
         mb.textPlain = "";
@@ -515,7 +515,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
             // make sure id changes since mail gets moved!
 
             idChange = true;
-            let hasAtt = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.moveAttachments(
+            let hasAtt = conjoon.dev.cn_mailsim.data.table.AttachmentTable.moveAttachments(
                 mailAccountId, mailFolderId, id, {
                     mailFolderId: values.mailFolderId
                 }
@@ -690,7 +690,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
     getMessageItems: function () {
 
         var me               = this,
-            AttachmentTable  = conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable,
+            AttachmentTable  = conjoon.dev.cn_mailsim.data.table.AttachmentTable,
             baseMessageItems = me.buildBaseMessageItems(),
             messageItems     = [];
 
@@ -830,7 +830,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.MessageTable", {
 
         me.messageDrafts = me.baseMessageItems = me.messageItems = me.messageBodies = null;
 
-        conjoon.dev.cn_mailsim.data.mail.ajax.sim.message.AttachmentTable.resetAll();
+        conjoon.dev.cn_mailsim.data.table.AttachmentTable.resetAll();
 
     }
 
