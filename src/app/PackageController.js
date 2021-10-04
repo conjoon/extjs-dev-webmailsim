@@ -53,11 +53,11 @@ Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
         
         Object.entries({
             "conjoon.dev.cn_mailsim.data.AttachmentSim": config.attachment,
-            "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount,
-            "conjoon.dev.cn_mailsim.data.MailFolderSim": config.mailFolder,
             "conjoon.dev.cn_mailsim.data.MessageItemSim": config.messageItem,
+            "conjoon.dev.cn_mailsim.data.MailFolderSim": config.mailFolder,
+            "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount,
             "conjoon.dev.cn_mailsim.data.SendMessageSim": config.sendMessage
-        }).forEach((cls, config) => {
+        }).forEach(([cls, config]) => {
 
             if (config.enabled)  {
                 Ext.ux.ajax.SimManager.register(
