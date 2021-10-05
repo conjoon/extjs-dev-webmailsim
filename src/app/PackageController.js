@@ -57,7 +57,9 @@ Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
             "conjoon.dev.cn_mailsim.data.MailFolderSim": config.mailFolder,
             "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount,
             "conjoon.dev.cn_mailsim.data.SendMessageSim": config.sendMessage
-        }).forEach(([cls, config]) => {
+        }).forEach((obj) => {
+            // closure shipping with sencha cmd dont like it
+            const [cls, config] = obj;
 
             if (config.enabled)  {
                 Ext.ux.ajax.SimManager.register(
