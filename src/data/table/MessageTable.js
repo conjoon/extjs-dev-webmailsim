@@ -35,7 +35,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
     ],
 
 
-    ITEM_LENGTH: 100,
+    ITEM_LENGTH: 1000,
 
     messageBodies: null,
 

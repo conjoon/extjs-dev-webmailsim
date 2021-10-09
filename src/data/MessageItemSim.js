@@ -283,7 +283,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             messageItems = MessageTable.getMessageItems(),
             ret = {},
             mailAccountId,
-            mailFolderId;
+            mailFolderId,
+            previewTextLength = ctx.params.previewTextLength ? ctx.params.previewTextLength : 200,
+            fields = ctx.params.fields ? ctx.params.fields.split(",") : [],
+            messageItemIds = ctx.params.messageItemIds ? ctx.params.messageItemIds.split(",") : [],
+            excludeFields = ctx.params.excludeFields ? ctx.params.excludeFields.split(",") : [];
 
 
         if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
@@ -368,15 +372,38 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return {data: item};
 
         } else if (!id) {
-
-            var items = [];
+            /* eslint-disable-next-line no-console*/
+            console.log("GET MessageItems ", ctx, keys);
+            var items = [], filtered;
             for (let i in messageItems) {
                 let messageItem = messageItems[i];
                 if (messageItem.mailAccountId === keys.mailAccountId &&
                     messageItem.mailFolderId === keys.mailFolderId) {
+
+                    if (messageItemIds.length) {
+                        if (messageItemIds.indexOf(messageItem.id) === -1) {
+                            continue;
+                        }
+                    }
+                    messageItem.previewText = messageItem.previewText.substr(0, previewTextLength);
+
+                    if (excludeFields.length && !fields.length) {
+                        messageItem = Object.assign({}, messageItem);
+                        excludeFields.forEach(exclude => delete messageItem[exclude]);
+                    } else if (fields.length && !excludeFields.length) {
+                        fields = fields.concat(["id", "mailFolderId", "mailAccountId"]);
+                        filtered = Object.create(null);
+                        fields.forEach(field => filtered[field] = messageItem[field]);
+                        messageItem = filtered;
+                    } else {
+                        return {status: 400, success: false};
+                    }
                     items.push(messageItem);
                 }
             }
+
+            /* eslint-disable-next-line no-console*/
+            console.log("GET MessageItems response", items);
 
             return items;
         } else {
