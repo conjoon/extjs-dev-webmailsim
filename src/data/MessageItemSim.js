@@ -29,7 +29,7 @@
 Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     extend: "Ext.ux.ajax.JsonSimlet",
-    
+
     requires: [
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
     ],
@@ -276,7 +276,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     data: function (ctx) {
 
-        var me = this,
+        let me = this,
             keys = me.extractCompoundKey(ctx.url),
             id,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
@@ -284,10 +284,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret = {},
             mailAccountId,
             mailFolderId,
-            previewTextLength = ctx.params.previewTextLength ? ctx.params.previewTextLength : 200,
-            fields = ctx.params.fields ? ctx.params.fields.split(",") : [],
-            messageItemIds = ctx.params.messageItemIds ? ctx.params.messageItemIds.split(",") : [],
-            excludeFields = ctx.params.excludeFields ? ctx.params.excludeFields.split(",") : [];
+            fields = ctx.params.attributes ? ctx.params.attributes.split(",") : [],
+            messageItemIds = ctx.params.messageItemIds ? ctx.params.messageItemIds.split(",") : [];
+
+        let excludeFields = [];
+
+        //  * found, map excludeFields
+        if (fields.indexOf("*") !== -1) {
+            excludeFields = fields.filter(field => field !== "*");
+        }
 
 
         if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
@@ -374,7 +379,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         } else if (!id) {
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems ", ctx, keys);
-            var items = [], filtered;
+            var items = [];
             for (let i in messageItems) {
                 let messageItem = messageItems[i];
                 if (messageItem.mailAccountId === keys.mailAccountId &&
@@ -385,26 +390,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                             continue;
                         }
                     }
-                    messageItem.previewText = messageItem.previewText.substr(0, previewTextLength);
 
-                    if (excludeFields.length && !fields.length) {
-                        messageItem = Object.assign({}, messageItem);
-                        excludeFields.forEach(exclude => delete messageItem[exclude]);
-                    } else if (fields.length && !excludeFields.length) {
-                        fields = fields.concat(["id", "mailFolderId", "mailAccountId"]);
-                        filtered = Object.create(null);
-                        fields.forEach(field => filtered[field] = messageItem[field]);
-                        messageItem = filtered;
-                    } else {
-                        return {status: 400, success: false};
-                    }
+                    excludeFields.forEach(field => delete messageItem[field]);
+
                     items.push(messageItem);
                 }
             }
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems response", items);
-
+            if (!ctx.xhr.options || !ctx.xhr.options.proxy) {
+                // if we are here, then the simmanager detected no proxy and the
+                // items have to be wrapped in an object with the assumed proxy-reader's "rootProperty",
+                // since the request was not triggered
+                // from a store's proxy
+                return {data: items};
+            }
             return items;
         } else {
             return messageItems;
