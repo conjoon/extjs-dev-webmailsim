@@ -29,7 +29,7 @@
 Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     extend: "Ext.ux.ajax.JsonSimlet",
-    
+
     requires: [
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
     ],
@@ -276,14 +276,23 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     data: function (ctx) {
 
-        var me = this,
+        let me = this,
             keys = me.extractCompoundKey(ctx.url),
             id,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
             messageItems = MessageTable.getMessageItems(),
             ret = {},
             mailAccountId,
-            mailFolderId;
+            mailFolderId,
+            fields = ctx.params.attributes ? ctx.params.attributes.split(",") : [],
+            messageItemIds = ctx.params.messageItemIds ? ctx.params.messageItemIds.split(",") : [];
+
+        let excludeFields = [];
+
+        //  * found, map excludeFields
+        if (fields.indexOf("*") !== -1) {
+            excludeFields = fields.filter(field => field !== "*");
+        }
 
 
         if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
@@ -368,16 +377,35 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return {data: item};
 
         } else if (!id) {
-
+            /* eslint-disable-next-line no-console*/
+            console.log("GET MessageItems ", ctx, keys);
             var items = [];
             for (let i in messageItems) {
                 let messageItem = messageItems[i];
                 if (messageItem.mailAccountId === keys.mailAccountId &&
                     messageItem.mailFolderId === keys.mailFolderId) {
+
+                    if (messageItemIds.length) {
+                        if (messageItemIds.indexOf(messageItem.id) === -1) {
+                            continue;
+                        }
+                    }
+
+                    excludeFields.forEach(field => delete messageItem[field]);
+
                     items.push(messageItem);
                 }
             }
 
+            /* eslint-disable-next-line no-console*/
+            console.log("GET MessageItems response", items);
+            if (!ctx.xhr.options || !ctx.xhr.options.proxy) {
+                // if we are here, then the simmanager detected no proxy and the
+                // items have to be wrapped in an object with the assumed proxy-reader's "rootProperty",
+                // since the request was not triggered
+                // from a store's proxy
+                return {data: items};
+            }
             return items;
         } else {
             return messageItems;
