@@ -74,6 +74,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
                 ret[prop] = me[prop];
             }
         });
+
+        /* eslint-disable-next-line no-console */
+        console.log("GET MailAccounts", ret);
         return ret;
 
 

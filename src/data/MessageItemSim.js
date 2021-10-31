@@ -386,7 +386,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                     messageItem.mailFolderId === keys.mailFolderId) {
 
                     if (messageItemIds.length) {
-                        if (messageItemIds.indexOf(messageItem.id) === -1) {
+                        if (!messageItemIds.includes(messageItem.id)) {
                             continue;
                         }
                     }
@@ -399,18 +399,75 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems response", items);
-            if (!ctx.xhr.options || !ctx.xhr.options.proxy) {
-                // if we are here, then the simmanager detected no proxy and the
-                // items have to be wrapped in an object with the assumed proxy-reader's "rootProperty",
-                // since the request was not triggered
-                // from a store's proxy
-                return {data: items};
+            if (!ctx.xhr.options.proxy) {
+                // create a proxy mock so that rootProperty is applied to data
+                ctx.xhr.options.proxy = {
+                    getReader: () => ({
+                        getTotalProperty: () => "count",
+                        rootProperty: "data",
+                        getRootProperty: () => "data"
+                    })
+                };
             }
+
             return items;
         } else {
             return messageItems;
         }
     },
+
+
+    doGet (ctx) {
+
+        const
+            me = this,
+            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+
+        if (ctx.params.target !== "MessageItem") {
+            return me.callParent(arguments);
+        }
+
+        let useFilter = false;
+        let filter = ctx.params.filter;
+        if (filter) {
+            filter = JSON.parse(filter);
+
+            filter.forEach(  f => {
+                if (f.property === "recent" && f.value === true) {
+                    useFilter = true;
+                    delete ctx.params.filter;
+                }
+
+            });
+        }
+
+        const ret = me.callParent(arguments),
+            data = JSON.parse(ret.responseText);
+
+        if (!useFilter) {
+            data.data[0].recent = true;
+            data.data[1].recent = true;
+            data.data[2].recent = true;
+
+        } else {
+            const count = MessageTable.buildRandomNumber(0, 5);
+            if (count > 0) {
+                const fItems = data.data.slice(0, count);
+                fItems.map(item => {
+                    item.id = MessageTable.buildRandomNumber(100030, 2000000);
+                    item.recent = true;
+                });
+                data.data = fItems;
+            } else {
+                data.data = [];
+            }
+        }
+
+        ret.responseText = JSON.stringify(data);
+
+        return ret;
+    },
+
 
     getMessageBody: function (mailAccountId, mailFolderId, id, isDraft = false) {
 
