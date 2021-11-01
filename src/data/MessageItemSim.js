@@ -445,17 +445,21 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             data = JSON.parse(ret.responseText);
 
         if (!useFilter) {
-            data.data[0].recent = true;
-            data.data[1].recent = true;
-            data.data[2].recent = true;
+            data.data[0] && (data.data[0].recent = true);
+            data.data[1] && (data.data[1].recent = true);
+            data.data[2] && (data.data[2].recent = true);
 
         } else {
             const count = MessageTable.buildRandomNumber(0, 5);
             if (count > 0) {
                 const fItems = data.data.slice(0, count);
+                let date = Ext.Date.format(new Date(), "Y-m-d H:i:s") + " +0000";
+
                 fItems.map(item => {
                     item.id = MessageTable.buildRandomNumber(100030, 2000000);
+                    item.date = date;
                     item.recent = true;
+                    item.mailFolderId = me.extractCompoundKey(ctx.url).mailFolderId;
                 });
                 data.data = fItems;
             } else {
