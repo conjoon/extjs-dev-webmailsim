@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -192,6 +192,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                     ret[prop] = me[prop];
                 }
             });
+
+            result.recent = false;
 
             let retVal = {
                 success: true,
@@ -417,59 +419,28 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     },
 
 
+    /**
+     * Adds recent items to the list of MessageItems in the MessageTable, if a filter
+     * is detected.
+     *
+     * @param ctx
+     * @returns {*}
+     */
     doGet (ctx) {
 
         const
             me = this,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        if (ctx.params.target !== "MessageItem") {
-            return me.callParent(arguments);
+        if (ctx.params.target === "MessageItem" && ctx.params.filter) {
+            MessageTable.addRecentItems(
+                MessageTable.buildRandomNumber(0, 2),
+                me.extractCompoundKey(ctx.url).mailFolderId
+            );
+
         }
 
-        let useFilter = false;
-        let filter = ctx.params.filter;
-        if (filter) {
-            filter = JSON.parse(filter);
-
-            filter.forEach(  f => {
-                if (f.property === "recent" && f.value === true) {
-                    useFilter = true;
-                    delete ctx.params.filter;
-                }
-
-            });
-        }
-
-        const ret = me.callParent(arguments),
-            data = JSON.parse(ret.responseText);
-
-        if (!useFilter) {
-            data.data[0] && (data.data[0].recent = true);
-            data.data[1] && (data.data[1].recent = true);
-            data.data[2] && (data.data[2].recent = true);
-
-        } else {
-            const count = MessageTable.buildRandomNumber(0, 5);
-            if (count > 0) {
-                const fItems = data.data.slice(0, count);
-                let date = Ext.Date.format(new Date(), "Y-m-d H:i:s") + " +0000";
-
-                fItems.map(item => {
-                    item.id = MessageTable.buildRandomNumber(100030, 2000000);
-                    item.date = date;
-                    item.recent = true;
-                    item.mailFolderId = me.extractCompoundKey(ctx.url).mailFolderId;
-                });
-                data.data = fItems;
-            } else {
-                data.data = [];
-            }
-        }
-
-        ret.responseText = JSON.stringify(data);
-
-        return ret;
+        return me.callParent(arguments);
     },
 
 

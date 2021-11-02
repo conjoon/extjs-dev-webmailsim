@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -44,6 +44,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
     baseMessageItems: null,
 
     DRAFT_KEY: 0,
+
+    /**
+     * Keeps track of recent messages, used as their id.
+     * Increased with each new item generated.
+     */
+    recentId: 10000000,
 
     /**
      *
@@ -734,6 +740,44 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
 
         return me.messageItems;
     },
+
+
+    /**
+     * Adds new message items to the table to mimic recent messages behavior.
+     *
+     * @param {Number} howMany the number of items to generate.
+     * @param {String} mailFolderId The id of the mailFolder the items should be put into.
+     */
+    addRecentItems (howMany, mailFolderId) {
+
+        const me = this;
+
+        if (!me.messageItems) {
+            return;
+        }
+
+        const date = Ext.Date.format(new Date(), "Y-m-d H:i:s") + " +0000";
+
+        let i = 0;
+        Object.values(me.messageItems).some(item => {
+            if (i === howMany) {
+                return true;
+            }
+
+            let newItem = Object.assign({}, item);
+
+            newItem.recent = true;
+            newItem.id = "" + me.recentId;
+            newItem.mailFolderId = mailFolderId;
+            newItem.date = date;
+
+            me.messageItems[Ext.id()] = newItem;
+            me.recentId++;
+            i++;
+        });
+
+    },
+
 
     /**
      * @private
