@@ -57,9 +57,9 @@ by specifying this package in the `uses`-property in either the `development` an
     }
 }
 ```
-In order to properly intercept outgoing requests to the services as described in **conjoon/rest-api-description/rest-imap**,
+In order to properly intercept outgoing requests to the services as described in **conjoon/rest-api-description/rest-api-email**,
 the package needs to be configured with a regular expression representing the urls to catch.
-The package is pre-configured so that it catches urls in the form of `https://php-ms-imapuser.ddev.site/rest-imap/api/v1/*`.
+The package is pre-configured so that it catches urls in the form of `https://php-ms-imapuser.ddev.site/rest-api-email/api/v1/*`.
 A custom configuration can be placed in the resources-folder of the application using the package.
 
 The following is a snapshot of the configuration and not guaranteed to work in future versions. It should be used as
@@ -67,27 +67,27 @@ an example - consult the `package.json` for an up to date configuration.
 ```json
 {
     "mailAccount": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts(\/\\d+)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts(\/\\d+)?",
         "enabled": true,
         "delay": 250
     },
     "mailFolder": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders(\/.*)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders(\/.*)?",
         "enabled": true,
         "delay": 250
     },
     "attachment": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?",
         "enabled": true,
         "delay": 250
     },
     "messageItem": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems(\/.*)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems(\/.*)?",
         "enabled": true,
         "delay": 250
     },
     "sendMessage": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/SendMessage(\/\\d+)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/SendMessage(\/\\d+)?",
         "enabled": true,
         "delay": 250
     }
