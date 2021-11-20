@@ -5,34 +5,10 @@
     "namespace": "conjoon.dev.cn_mailsim",
     "coon-js": {
       "package": {
-        "controller": true,
-        "config" : {
-          "attachment": {
-            "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts/(.+)/MailFolders/(.+)/MessageItems/(.+)/Attachments(/.*)?",
-            "enabled": true,
-            "delay": 250
-          },
-          "messageItem": {
-            "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts/(.+)/MailFolders/(.+)/MessageItems(/.*)?",
-            "enabled": true,
-            "delay": 250
-          },
-          "mailFolder": {
-            "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts/(.+)/MailFolders(/.*)?",
-            "enabled": true,
-            "delay": 250
-          },
-          "mailAccount": {
-            "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts(/d+)?",
-            "enabled": true,
-            "delay": 250
-          },
-          "sendMessage": {
-            "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/SendMessage(/d+)?",
-            "enabled": true,
-            "delay": 250
-          }
-        }
+        "autoLoad":  {
+          "registerController": true
+        },
+        "config" : "${package.resourcePath}/extjs-dev-webmailsim.conf.json"
       }
     },
     "type": "code",

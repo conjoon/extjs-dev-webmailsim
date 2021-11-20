@@ -34,6 +34,38 @@ Example (`workspace.json`) :
   }
 }
 ```
+
+## Configuration options
+
+In order to properly intercept outgoing requests to the services as described in [rest-api-mail](https://github.com/conjoon/rest-api-description),,
+the package needs to be configured with a regular expression representing the urls to catch.
+The package is pre-configured so that it catches urls in the form of `https://php-ms-imapuser.ddev.site/rest-api-email/api/v0/*`.
+
+If this package is used in your development or production environment, intercepting urls can be enabled/disabled by changing 
+the property `enabled` of each url to either `true` or `false`. 
+<br>Network latency for the mocked requests can be mimicked with the `delay`-option (in milliseconds).
+
+
+- `attachment.url`
+- `attachment.enabled`
+- `attachment.delay`
+  <br><br>  
+- `messageItem.url`
+- `messageItem.enabled`
+- `messageItem.delay`
+  <br><br>
+- `mailFolder.url`
+- `mailFolder.enabled`
+- `mailFolder.delay`
+  <br><br>
+- `mailAccount.url`
+- `mailAccount.enabled`
+- `mailAccount.delay`
+  <br><br>
+- `sendMessage.url`
+- `sendMessage.enabled`
+- `sendMessage.delay`
+
 ## Usage
 Simply update the app.json of the **conjoon**-application
 by specifying this package in the `uses`-property in either the `development` and/or `prodution` section:
@@ -57,43 +89,3 @@ by specifying this package in the `uses`-property in either the `development` an
     }
 }
 ```
-In order to properly intercept outgoing requests to the services as described in **conjoon/rest-api-description/rest-api-email**,
-the package needs to be configured with a regular expression representing the urls to catch.
-The package is pre-configured so that it catches urls in the form of `https://php-ms-imapuser.ddev.site/rest-api-email/api/v1/*`.
-A custom configuration can be placed in the resources-folder of the application using the package.
-
-The following is a snapshot of the configuration and not guaranteed to work in future versions. It should be used as
-an example - consult the `package.json` for an up to date configuration. 
-```json
-{
-    "mailAccount": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts(\/\\d+)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "mailFolder": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "attachment": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "messageItem": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "sendMessage": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/\/SendMessage(\/\\d+)?",
-        "enabled": true,
-        "delay": 250
-    }
-}
-```
-If this package is used in your environment, intercepting urls can be enabled/disabled by changing the property `enabled`
-to either `true` or `false`.
-<br>Please refer to the documentation of [extjs-lib-core](https://github.com/coon-js/extjs-lib-core) on how to
-create package-specific configurations.
