@@ -44,13 +44,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
 
         let me = this,
             keys = me.extractCompoundKey(ctx.url),
-            ret = {};
-
-
-        let itemData = AttachmentTable.deleteAttachment(
-            keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
-
-        let retVal;
+            ret = {},
+            itemData,
+            retVal;
+        itemData = false;
+        if (itemData !== false) {
+            itemData = AttachmentTable.deleteAttachment(
+                keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
+        }
 
         if (itemData === false) {
             retVal = {
@@ -67,6 +68,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
                 }
             };
         }
+
         ret.responseText = Ext.JSON.encode(retVal);
 
         Ext.Array.forEach(me.responseProps, function (prop) {
