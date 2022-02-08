@@ -47,7 +47,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
             ret = {},
             itemData,
             retVal;
-        itemData = false;
+
         if (itemData !== false) {
             itemData = AttachmentTable.deleteAttachment(
                 keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
@@ -61,8 +61,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
             retVal = {
                 success: true,
                 data: {
-                    id: keys.id,
-                    parentMessageItemId: itemData.parentMessageItemId,
+                    id: itemData.parentMessageItemId,
                     mailAccountId: itemData.mailAccountId,
                     mailFolderId: itemData.mailFolderId
                 }
@@ -79,6 +78,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
 
         /* eslint-disable-next-line no-console*/
         console.log("DELETING ATTACHMENT, response: ", retVal);
+
         return ret;
 
     },
@@ -155,7 +155,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
         if (id) {
 
             /* eslint-disable-next-line no-console*/
-            console.log("GET", "Attachment", id, params.mailAccountId,
+            console.log("GET", "Attachment", ctx, id, params.mailAccountId,
                 params.mailFolderId, params.originalMessageItemId, new Date());
             return AttachmentTable.getAttachment(
                 keys.mailAccountId,
