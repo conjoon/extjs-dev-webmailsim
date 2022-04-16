@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -56,7 +56,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         if (!id) {
             /* eslint-disable-next-line no-console*/
             console.log("DELETE MessageItem - no numeric id specified.");
-            return {success: false};
+            return {status: 400, success: false};
         }
 
         let messageItems = MessageTable.getMessageItems(), mi;
@@ -72,7 +72,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (!found) {
-            return {success: false};
+            return {status: 404, success: false};
         }
 
         Ext.Array.forEach(me.responseProps, function (prop) {
@@ -128,6 +128,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (draft.subject === "TESTFAIL") {
+            ret.status = 500;
             ret.responseText = Ext.JSON.encode({
                 success: false
             });
@@ -202,7 +203,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret.responseText = Ext.JSON.encode(retVal);
 
             /* eslint-disable-next-line no-console*/
-            console.log("PUT " + target + ", response: ", retVal);
+            console.log("PUT " + target + ", response: ", ret);
 
             return ret;
         }
@@ -227,6 +228,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (values.subject === "TESTFAIL") {
+            ret.status = 500;
             ret.responseText = Ext.JSON.encode({
                 success: false
             });
