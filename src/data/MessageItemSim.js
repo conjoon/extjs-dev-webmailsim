@@ -289,13 +289,33 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             mailAccountId,
             mailFolderId,
             fields = ctx.params.attributes ? ctx.params.attributes.split(",") : [],
-            messageItemIds = ctx.params.messageItemIds ? ctx.params.messageItemIds.split(",") : [];
+            messageItemIds = [];
 
-        let excludeFields = [];
+        if (ctx.params.messageItemIds) {
+            throw new Error("unexpected param messageItemIds");
+        }
+
+        let idFilter = null;
+        if (ctx.params.filter) {
+            idFilter = JSON.parse(ctx.params.filter);
+            if (idFilter) {
+                idFilter.some(filter => {
+                    if (filter.property === "id") {
+                        idFilter = idFilter[0].property === "id" ? idFilter[0].value : [];
+                        messageItemIds = idFilter;
+                        return true;
+                    }
+                });
+            }
+        }
+
+        let excludeFields = [], includeFields = [];
 
         //  * found, map excludeFields
         if (fields.indexOf("*") !== -1) {
             excludeFields = fields.filter(field => field !== "*");
+        } else if (fields.length) {
+            includeFields = ["mailAccountId", "mailFolderId", "id"].concat(fields);
         }
 
 
@@ -395,11 +415,23 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                         }
                     }
 
-                    excludeFields.forEach(field => delete messageItem[field]);
+                    if (excludeFields.length) {
+                        excludeFields.forEach(field => {
+                            delete messageItem[field];
+                        });
+                    } else if (includeFields.length) {
+                        let tmpItem = {};
+                        includeFields.forEach(field => {
+                            tmpItem[field] = messageItem[field];
+                        });
+                        messageItem = tmpItem;
+                    }
+
 
                     items.push(messageItem);
                 }
             }
+
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems response", items);
