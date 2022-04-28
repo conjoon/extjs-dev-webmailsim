@@ -94,6 +94,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         let target = ctx.params.target;
 
         if (target === "MessageItem") {
+            /* eslint-disable-next-line no-console*/
             console.error("POSTing MessageItem - this should only happen in tests");
             return;
         }
@@ -319,25 +320,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
 
-        if (["MessageBodyDraft", "MessageItem", "MessageBody", "MessageDraft"].indexOf(ctx.params.target) === -1) {
-            Ext.raise("Invalid target parameter: " + ctx.params.target);
-        }
-
-        if (ctx.params.target === "MessageBody") {
+        if (ctx.url.indexOf("/MessageBody") !== -1) {
 
             /* eslint-disable-next-line no-console*/
-            console.log("GET MessageBody ", ctx.url, keys);
-            return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id);
-        }
-
-        if (ctx.params.target === "MessageBodyDraft") {
-
-            /* eslint-disable-next-line no-console*/
-            console.log("GET MessageBodyDraft ", ctx.url, keys);
+            console.log("GET MessageBody/MessageBodyDraft ", ctx.url, keys);
             return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
         }
 
-        if (ctx.params.target === "MessageDraft") {
+        if (ctx.params.attributes === "*,previewText,hasAttachments,size") {
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageDraft ", ctx.url);
@@ -374,7 +364,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             }
 
             /* eslint-disable-next-line no-console*/
-            console.log("GET MessageDraft, response ", ctx.url);
+            console.log("GET MessageDraft, response ", retVal);
 
             return retVal;
         }
@@ -398,6 +388,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 return {status: 404, success: false};
             }
 
+            /* eslint-disable-next-line no-console*/
+            console.log("GET MessageItem ", item);
             return {data: item};
 
         } else if (!id) {
@@ -478,7 +470,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     },
 
 
-    getMessageBody: function (mailAccountId, mailFolderId, id, isDraft = false) {
+    getMessageBody: function (mailAccountId, mailFolderId, id) {
 
         let retVal;
 
@@ -495,7 +487,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                     id
                 )};
 
-            let entity = isDraft ? "MessageBodyDraft" : "MessageBody";
+            let entity = "MessageBodyDraft/MessageBody";
 
             /* eslint-disable-next-line no-console*/
             console.log("GET " + entity + ", response, ", retVal);
@@ -583,6 +575,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         if (id === "MessageItems") {
             id = undefined;
             pt.push("foo");
+        }
+
+        if (id === "MessageBody") {
+            id = pt.pop();
         }
 
         pt.pop();
