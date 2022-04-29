@@ -38,15 +38,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         const me  = this,
             keys = me.extractCompoundKey(ctx.url),
-            target =  ctx.params.target,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        if (target === "MessageBody") {
-            Ext.raise("Not implemented");
-        }
 
         /* eslint-disable-next-line no-console*/
-        console.log("DELETE MessageItem - ", target, keys);
+        console.log("DELETE MessageItem - ",keys);
 
         let ret = {}, found = false,
             id = keys.id,
