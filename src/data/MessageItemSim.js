@@ -163,8 +163,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             result,
             target = ctx.params.target;
 
-        if (["MessageBodyDraft", "MessageItem", "MessageDraft"].indexOf(target) === -1) {
+        if (target && ["MessageItem", "MessageDraft"].indexOf(target) === -1) {
             Ext.raise("Invalid target parameter: " + target);
+        }
+
+        if (!target && ctx.url.indexOf("/MessageBody") !== -1) {
+            target = "MessageBodyDraft";
         }
 
         if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
@@ -200,7 +204,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret.responseText = Ext.JSON.encode(retVal);
 
             /* eslint-disable-next-line no-console*/
-            console.log("PUT " + target + ", response: ", ret);
+            console.log("PUT " + target + ",", ctx.url, ", response: ", ret);
 
             return ret;
         }
@@ -550,7 +554,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         ret.responseText = Ext.JSON.encode(retVal);
 
         /* eslint-disable-next-line no-console */
-        console.log("POSTED MessageBodyDraft", retVal);
+        console.log("POSTED MessageBodyDraft", ctx.url, retVal);
         return ret;
     },
 
