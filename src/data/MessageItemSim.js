@@ -479,7 +479,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             me = this,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        if (ctx.params.target === "MessageItem" && ctx.params.filter) {
+        if (ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.filter) {
             MessageTable.addRecentItems(
                 MessageTable.buildRandomNumber(0, 2),
                 me.extractCompoundKey(ctx.url).mailFolderId
