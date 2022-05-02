@@ -153,7 +153,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     },
 
 
-    doPut: function (ctx) {
+    doPatch: function (ctx) {
 
         var me           = this,
             keys         = me.extractCompoundKey(ctx.url),
@@ -163,21 +163,25 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             result,
             target = ctx.params.target;
 
-        if (target && ["MessageItem", "MessageDraft"].indexOf(target) === -1) {
-            Ext.raise("Invalid target parameter: " + target);
-        }
+        if (!target) {
+            if (ctx.url.indexOf("/MessageBody") !== -1) {
+                target = "MessageBodyDraft";
+            } else if (ctx.url.indexOf("/MessageItem") !== -1) {
+                target = "MessageItem";
+            } else if (ctx.url.indexOf("/MessageDraft") !== -1) {
+                target = "MessageDraft";
+            }
 
-        if (!target && ctx.url.indexOf("/MessageBody") !== -1) {
-            target = "MessageBodyDraft";
         }
 
         if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
-            for (let i in ctx.xhr.options.jsonData) {
-                if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
-                    continue;
-                }
-                values[i] = ctx.xhr.options.jsonData[i];
-            }
+            values = Object.assign(
+                {},
+                ctx.xhr.options.jsonData.data.attributes,
+                ctx.xhr.options.jsonData.data
+            );
+            delete values.attributes;
+
 
             /* eslint-disable-next-line no-console*/
             console.log("PUT " + target, values);
@@ -221,12 +225,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         values        = {};
         keys          = me.extractCompoundKey(ctx.url);
 
-        for (let i in ctx.xhr.options.jsonData) {
-            if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
-                continue;
-            }
-            values[i] = ctx.xhr.options.jsonData[i];
-        }
+        values = Object.assign(
+            {},
+            ctx.xhr.options.jsonData.data.attributes,
+            ctx.xhr.options.jsonData.data
+        );
+        delete values.attributes;
 
         if (values.subject === "TESTFAIL") {
             ret.status = 500;
@@ -516,14 +520,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret   = {},
             newRec;
 
-        for (var i in ctx.xhr.options.jsonData) {
-            if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
-                continue;
-            }
-
-            body[i] = ctx.xhr.options.jsonData[i];
-        }
-
+        body = Object.assign(
+            {},
+            ctx.xhr.options.jsonData.data.attributes,
+            ctx.xhr.options.jsonData.data
+        );
+        delete body.attributes;
 
         if (!body.textPlain && body.textHtml) {
             body.textPlain = Ext.util.Format.stripTags(body.textHtml);
@@ -577,7 +579,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             pt.push("foo");
         }
 
-        if (id === "MessageBody") {
+        if (["MessageBody", "MessageDraft", "MessageItem"].includes(id)) {
             id = pt.pop();
         }
 
