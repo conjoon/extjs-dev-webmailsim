@@ -89,6 +89,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         let target = ctx.params.target;
 
+        if (!target) {
+            /**
+             * avoid /MessageItems - append query separator "?"
+             */
+            if (ctx.url.indexOf("/MessageBody?") !== -1) {
+                target = "MessageBodyDraft";
+            } else if (ctx.url.indexOf("/MessageDraft?") !== -1) {
+                target = "MessageDraft";
+            } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
+                target = "MessageItem";
+            }
+        }
+
         if (target === "MessageItem") {
             /* eslint-disable-next-line no-console*/
             console.error("POSTing MessageItem - this should only happen in tests");
@@ -105,22 +118,23 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         // MessageDraft
         /* eslint-disable-next-line no-console*/
-        console.log("POST MessageDraft", ctx, ctx.xhr.options.jsonData);
+        console.log("POST MessageDraft - this should only happen in tests", ctx, ctx.xhr.options.jsonData);
 
         var me            = this,
             draft         = {},
             ret           = {},
             MessageTable  = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        for (var i in ctx.xhr.options.jsonData) {
-            if (!Object.prototype.hasOwnProperty.call(ctx.xhr.options.jsonData, i)) {
-                continue;
-            }
+        draft = Object.assign(
+            {},
+            ctx.xhr.options.jsonData.data,
+            ctx.xhr.options.jsonData.data.attributes
+        );
+        delete draft.attributes;
 
+        for (var i in draft) {
             if (i === "to" || i === "cc" || i === "bcc") {
-                draft[i] = Ext.JSON.decode(ctx.xhr.options.jsonData[i]);
-            } else {
-                draft[i] = ctx.xhr.options.jsonData[i];
+                draft[i] = Ext.JSON.decode(draft[i]);
             }
         }
 
@@ -164,12 +178,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             target = ctx.params.target;
 
         if (!target) {
-            if (ctx.url.indexOf("/MessageBody") !== -1) {
+            /**
+             * avoid /MessageItems - append query separator "?"
+             */
+            if (ctx.url.indexOf("/MessageBody?") !== -1) {
                 target = "MessageBodyDraft";
-            } else if (ctx.url.indexOf("/MessageItem") !== -1) {
-                target = "MessageItem";
-            } else if (ctx.url.indexOf("/MessageDraft") !== -1) {
+            } else if (ctx.url.indexOf("/MessageDraft?") !== -1) {
                 target = "MessageDraft";
+            } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
+                target = "MessageItem";
             }
 
         }
@@ -177,14 +194,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
             values = Object.assign(
                 {},
-                ctx.xhr.options.jsonData.data.attributes,
-                ctx.xhr.options.jsonData.data
+                ctx.xhr.options.jsonData.data,
+                ctx.xhr.options.jsonData.data.attributes
             );
             delete values.attributes;
 
 
             /* eslint-disable-next-line no-console*/
-            console.log("PUT " + target, values);
+            console.log("PATCH " + target, values);
 
 
             if (target === "MessageBodyDraft") {
@@ -208,7 +225,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret.responseText = Ext.JSON.encode(retVal);
 
             /* eslint-disable-next-line no-console*/
-            console.log("PUT " + target + ",", ctx.url, ", response: ", ret);
+            console.log("PATCH " + target + ",", ctx.url, ", response: ", ret);
 
             return ret;
         }
@@ -216,7 +233,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         // This is where we trigger an idchange
         /* eslint-disable-next-line no-console*/
-        console.log("PUT MessageDraft", ctx.xhr.options.jsonData);
+        console.log("PATCH MessageDraft", ctx.xhr.options.jsonData);
 
         // MESSAGE DRAFT
 
@@ -227,8 +244,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         values = Object.assign(
             {},
-            ctx.xhr.options.jsonData.data.attributes,
-            ctx.xhr.options.jsonData.data
+            ctx.xhr.options.jsonData.data,
+            ctx.xhr.options.jsonData.data.attributes
         );
         delete values.attributes;
 
@@ -275,7 +292,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         });
 
         /* eslint-disable-next-line no-console*/
-        console.log("PUT MessageDraft, response: ", values);
+        console.log("PATCH MessageDraft, response: ", values);
 
         return ret;
 
@@ -522,8 +539,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         body = Object.assign(
             {},
-            ctx.xhr.options.jsonData.data.attributes,
-            ctx.xhr.options.jsonData.data
+            ctx.xhr.options.jsonData.data,
+            ctx.xhr.options.jsonData.data.attributes
+
         );
         delete body.attributes;
 
