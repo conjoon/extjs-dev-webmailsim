@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -502,8 +502,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             vals.push(a);
         }
 
-        if (vals.indexOf("localId") !== -1 &&
-            vals.indexOf("mailAccountId") !== -1 &&
+        if (vals.indexOf("mailAccountId") !== -1 &&
             vals.indexOf("id") !== -1 &&
             vals.indexOf("mailFolderId") !== -1) {
             if (vals.length === 4  ||
