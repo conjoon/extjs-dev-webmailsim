@@ -108,13 +108,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return;
         }
 
-        if (ctx.params.target === "MessageBodyDraft") {
+        if (Object.keys(ctx.xhr.options.jsonData.data.attributes).includes("textHtml") ||
+            Object.keys(ctx.xhr.options.jsonData.data.attributes).includes("textPlain")) {
             return this.postMessageBody(ctx);
         }
 
-        if (ctx.params.target !== "MessageDraft") {
-            Ext.raise("Invalid target parameter: " + ctx.params.target);
-        }
 
         // MessageDraft
         /* eslint-disable-next-line no-console*/
@@ -125,15 +123,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret           = {},
             MessageTable  = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        draft = Object.assign(
-            {},
-            ctx.xhr.options.jsonData.data,
-            ctx.xhr.options.jsonData.data.attributes
-        );
-        delete draft.attributes;
+        draft = me.extractValues(ctx.xhr.options.jsonData);
 
         for (var i in draft) {
-            if (i === "to" || i === "cc" || i === "bcc") {
+            if (i === "to" || i === "cc" || i === "bcc" || i === "replyTo") {
                 draft[i] = Ext.JSON.decode(draft[i]);
             }
         }
@@ -192,12 +185,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
-            values = Object.assign(
-                {},
-                ctx.xhr.options.jsonData.data,
-                ctx.xhr.options.jsonData.data.attributes
-            );
-            delete values.attributes;
+            values = me.extractValues(ctx.xhr.options.jsonData);
 
 
             /* eslint-disable-next-line no-console*/
@@ -208,6 +196,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 result = MessageTable.updateMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, values);
             } else {
                 result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
+                result = Object.fromEntries(Object.entries(result).filter(([key, value]) => !!values[key]));
             }
 
             Ext.Array.forEach(me.responseProps, function (prop) {
@@ -242,12 +231,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         values        = {};
         keys          = me.extractCompoundKey(ctx.url);
 
-        values = Object.assign(
-            {},
-            ctx.xhr.options.jsonData.data,
-            ctx.xhr.options.jsonData.data.attributes
-        );
-        delete values.attributes;
+        values = me.extractValues(ctx.xhr.options.jsonData);
 
         if (values.subject === "TESTFAIL") {
             ret.status = 500;
@@ -537,12 +521,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret   = {},
             newRec;
 
-        body = Object.assign(
-            {},
-            ctx.xhr.options.jsonData.data,
-            ctx.xhr.options.jsonData.data.attributes
+        body = me.extractValues(ctx.xhr.options.jsonData);
 
-        );
         delete body.attributes;
 
         if (!body.textPlain && body.textHtml) {
@@ -576,6 +556,24 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         /* eslint-disable-next-line no-console */
         console.log("POSTED MessageBodyDraft", ctx.url, retVal);
         return ret;
+    },
+
+
+    /**
+     * extract key/value pairs from submitted jsonData in data.attributes
+     */
+    extractValues (jsonData) {
+
+        const values = Object.assign(
+            {},
+            jsonData.data,
+            jsonData.data.attributes
+        );
+
+        delete values.type;
+        delete values.attributes;
+
+        return values;
     },
 
 
