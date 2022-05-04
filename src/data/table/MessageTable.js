@@ -561,6 +561,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 case "cc":
                 case "bcc":
                 case "from":
+                case "replyTo":
                     if (Ext.isString(values[prop]))
                         currItem[prop] = Ext.JSON.decode(values[prop]);
                     break;
