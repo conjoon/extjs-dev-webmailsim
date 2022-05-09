@@ -99,6 +99,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 target = "MessageDraft";
             } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
                 target = "MessageItem";
+            } else if (ctx.url.indexOf("/MessageItems/") !== -1) {
+                return this.sendMessage(ctx);
             }
         }
 
@@ -609,6 +611,63 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             mailFolderId: decodeURIComponent(mailFolderId),
             id: id ? decodeURIComponent(id) : undefined
         };
+    },
+
+
+    /**
+     * Sends a Message.
+     * @param ctx
+     * @returns {{}}
+     */
+    sendMessage: function (ctx) {
+
+        /* eslint-disable-next-line no-console*/
+        console.log("POST SendMessage", ctx.xhr.options);
+
+        const me              = this,
+            ret             = {},
+            MessageTable    = conjoon.dev.cn_mailsim.data.table.MessageTable;
+
+        const
+            key             = me.extractCompoundKey(ctx.url),
+            id              = key.id,
+            mailAccountId   = key.mailAccountId,
+            mailFolderId    = key.mailFolderId,
+            draft           = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
+
+
+        if (draft.xCnDraftInfo) {
+            let [accountId, folderId, id] = Ext.decode(atob(draft.xCnDraftInfo));
+            let items = MessageTable.getMessageItems();
+            for (let i in items) {
+                if (items[i].mailAccountId === accountId && items[i].id === id &&
+                    items[i].mailFolderId === folderId) {
+                    MessageTable.updateAllItemData(
+                        items[i].mailAccountId, items[i].mailFolderId, items[i].id,
+                        {answered: true});
+                    break;
+                }
+            }
+        }
+
+        if (draft.subject === "SENDFAIL") {
+            ret.responseText = Ext.JSON.encode({
+                success: false
+            });
+            return ret;
+        }
+
+        Ext.Array.forEach(me.responseProps, function (prop) {
+            if (prop in me) {
+                ret[prop] = me[prop];
+            }
+        });
+
+        ret.responseText = Ext.JSON.encode({
+            success: true
+        });
+
+        return ret;
     }
 
 
