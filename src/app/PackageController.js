@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -36,8 +36,7 @@ Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
         "conjoon.dev.cn_mailsim.data.AttachmentSim",
         "conjoon.dev.cn_mailsim.data.MailAccountSim",
         "conjoon.dev.cn_mailsim.data.MailFolderSim",
-        "conjoon.dev.cn_mailsim.data.MessageItemSim",
-        "conjoon.dev.cn_mailsim.data.SendMessageSim"
+        "conjoon.dev.cn_mailsim.data.MessageItemSim"
     ],
 
     /**
@@ -55,8 +54,7 @@ Ext.define("conjoon.dev.cn_mailsim.app.PackageController", {
             "conjoon.dev.cn_mailsim.data.AttachmentSim": config.attachment,
             "conjoon.dev.cn_mailsim.data.MessageItemSim": config.messageItem,
             "conjoon.dev.cn_mailsim.data.MailFolderSim": config.mailFolder,
-            "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount,
-            "conjoon.dev.cn_mailsim.data.SendMessageSim": config.sendMessage
+            "conjoon.dev.cn_mailsim.data.MailAccountSim": config.mailAccount
         }).forEach((obj) => {
             // closure shipping with sencha cmd dont like it
             const [cls, config] = obj;
