@@ -99,7 +99,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 target = "MessageDraft";
             } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
                 target = "MessageItem";
-            } else if (ctx.url.indexOf("/MessageItem/") !== -1) {
+            } else if (ctx.url.indexOf("/MessageItems/") !== -1) {
                 return this.sendMessage(ctx);
             }
         }
