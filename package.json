@@ -5,10 +5,10 @@
     "namespace": "conjoon.dev.cn_mailsim",
     "coon-js": {
       "package": {
-        "autoLoad":  {
+        "autoLoad": {
           "registerController": true
         },
-        "config" : "${package.resourcePath}/extjs-dev-webmailsim.conf.json"
+        "config": "${package.resourcePath}/extjs-dev-webmailsim.conf.json"
       }
     },
     "type": "code",
@@ -43,7 +43,7 @@
     ]
   },
   "description": "This Sencha Ext JS NPM package contains mock data for development of @conjoon/extjs-app-webmail]",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "main": "index.js",
   "directories": {
     "test": "tests"
