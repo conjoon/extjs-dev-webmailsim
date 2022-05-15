@@ -71,7 +71,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
     buildPreviewText: function (mailAccountId, mailFolderId, id) {
         var me = this;
 
-        return me.getMessageBody(mailAccountId, mailFolderId, id).textPlain.substring(0, 200);
+        let plain = me.getMessageBody(mailAccountId, mailFolderId, id).textPlain;
+        return plain ? plain.substring(0, 200) : "";
     },
 
     buildRandomDate: function () {
@@ -223,7 +224,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
 
     messages: [
         "<ul><li><img /><div style='background:black'>testmeclickyo</div>Blindtext <a href='mailto:dev@conjoon.org'><b> mail me @ conjoon</b></a> - Lorem <a href='http://www.conjoon.org'><b>conjoon</b></a> ipsum dolor sit amet, consectetuer adipiscing  elit. Aenean commodo ligula eget dolor. Aenean massa.</li><li>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, <br />pretium quis, sem.</li> <li>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.</li> <li>In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.</li></ul>",
-        "<p>Text <a href='mailto:dev@conjoon.org'><b> mail me @ conjoon</b></a> here: Lorem ipsum dolor sit amet, <br />consectetuer <a href='http://www.conjoon.org'><b>conjoon</b></a> adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa <strong>strong</strong>. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, <br />aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede <a class=\"external ext\" href=\"#\">link</a> mollis pretium. Integer tincidunt. <br />Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, <br />porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi.</p>",
+        "<p>Text <a href='#'><b> mail me @ conjoon</b></a> here: Lorem ipsum dolor sit amet, <br />consectetuer <a href='http://www.conjoon.org'><b>conjoon</b></a> adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa <strong>strong</strong>. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, <br />aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede <a class=\"external ext\" href=\"#\">link</a> mollis pretium. Integer tincidunt. <br />Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, <br />porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi.</p>",
         "<blockquote><img />Following <a href='mailto:dev@conjoon.org'><b> mail me@conjoon.com</b></a> news! <a href='http://www.conjoon.org'><b>https://conjoon.org</b></a> Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa <strong>strong</strong>. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat <br />massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In <em>em</em> enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam <a class=\"external ext\" href=\"#\">link</a> dictum felis eu <br />pede mollis pretium. </blockquote>"
     ],
 
@@ -785,11 +786,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
     getSender  () {
         return [
             {address: "tsuckow@conjoon.org", name: "conjoonadmin"},
-            {address: "service@booking.com", name: "Booking.com"},
-            {address: "info@ebay.de",        name: "ebay Verkäufer Team"},
-            {address: "mailer@mtb-news.de",  name: "MTB News"},
-            {address: "service@otto.de",     name: "Otto GmbH"},
-            {address: "info@amazon.de",      name: "Amazon"}
+            {address: "ts@siteartwork.de", name: "Booking.com"},
+            {address: "demo@conjoon.org",        name: "ebay Verkäufer Team"},
+            {address: "info@conjoon.org",  name: "MTB News"},
+            {address: "thorsten@suckow-homberg.de",     name: "Otto GmbH"},
+            {address: "admin@conjoon.org",      name: "Amazon"}
         ];
     },
 
