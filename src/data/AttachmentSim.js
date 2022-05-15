@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -44,13 +44,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
 
         let me = this,
             keys = me.extractCompoundKey(ctx.url),
-            ret = {};
+            ret = {},
+            itemData,
+            retVal;
 
-
-        let itemData = AttachmentTable.deleteAttachment(
-            keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
-
-        let retVal;
+        if (itemData !== false) {
+            itemData = AttachmentTable.deleteAttachment(
+                keys.mailAccountId, keys.mailFolderId, keys.parentMessageItemId, keys.id);
+        }
 
         if (itemData === false) {
             retVal = {
@@ -60,13 +61,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
             retVal = {
                 success: true,
                 data: {
-                    id: keys.id,
-                    parentMessageItemId: itemData.parentMessageItemId,
+                    id: itemData.parentMessageItemId,
                     mailAccountId: itemData.mailAccountId,
                     mailFolderId: itemData.mailFolderId
                 }
             };
         }
+
         ret.responseText = Ext.JSON.encode(retVal);
 
         Ext.Array.forEach(me.responseProps, function (prop) {
@@ -75,8 +76,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
             }
         });
 
+        if (!retVal.success) {
+            ret.status = 500;
+        }
+
         /* eslint-disable-next-line no-console*/
-        console.log("DELETING ATTACHMENT, response: ", retVal);
+        console.log("DELETING ATTACHMENT, response: ", ret);
+
         return ret;
 
     },
@@ -136,7 +142,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
         ret.responseText = Ext.JSON.encode(retVal);
 
         /* eslint-disable-next-line no-console*/
-        console.log("POSTED Attachment, response: ", retVal);
+        console.log("POSTED Attachment, response: ", ret);
         return ret;
     },
 
@@ -153,7 +159,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
         if (id) {
 
             /* eslint-disable-next-line no-console*/
-            console.log("GET", "Attachment", id, params.mailAccountId,
+            console.log("GET", "Attachment", ctx, id, params.mailAccountId,
                 params.mailFolderId, params.originalMessageItemId, new Date());
             return AttachmentTable.getAttachment(
                 keys.mailAccountId,

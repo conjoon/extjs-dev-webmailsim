@@ -1,7 +1,8 @@
 ## @conjoon/extjs-dev-webmailsim ![MIT](https://img.shields.io/npm/l/@conjoon/extjs-dev-webmailsim) [![npm version](https://badge.fury.io/js/@conjoon%2Fextjs-dev-webmailsim.svg)](https://badge.fury.io/js/@conjoon%2Fextjs-dev-webmailsim)
 
-This Sencha ExtJS NPM package contains mock data for development of [conjoon/extjs-app-webmail](https://github.com/conjoon/extjs-app-webmail).
-When using this package, all backend requests of `extjs-app-webmail` will be replaced with mocks.
+This Sencha Ext JS NPM package contains mock data for development of [conjoon/extjs-app-webmail](https://github.com/conjoon/extjs-app-webmail).
+When using this package, configured urls will be intercepted and static data is returned in
+the responses.
 
 ## Installation
 ```bash
@@ -18,11 +19,9 @@ Testing environment will then be available via
 $ npm test
 ```
 
-For using the package as an external dependency in an application, use
-```bash
-$ npm install --save-prod @conjoon/extjs-dev-webmailsim
-```
-In your `app.json`, add this package as a requirement, and make sure your ExtJS `workspace.json`
+For using the package as an external dependency in an application:
+<br>
+In your `app.json`, add this package as a requirement, and make sure your Ext JS `workspace.json`
 is properly configured to look up local repositories in the `node_modules`-directory.
 
 Example (`workspace.json`) :
@@ -34,66 +33,32 @@ Example (`workspace.json`) :
   }
 }
 ```
-## Usage
-Simply update the app.json of the **conjoon**-application
-by specifying this package in the `uses`-property in either the `development` and/or `prodution` section:
+Update the `app.json` of the application by specifying this package in the `uses`-property in
+either the `development` and/or `prodution` section:
 
 *Example:*
 ```json
 {
     "development": {
         "uses": [
-            "extjs-app-webmail",
+            "extjs-dev-imapusersim",
             "extjs-app-imapuser",
-            "extjs-dev-webmailsim",
-            "extjs-dev-imapusersim"
+            "extjs-app-webmail",
+            "extjs-dev-webmailsim"
         ]
     },
     "production": {
         "uses": [
-            "extjs-app-webmail",
-            "extjs-app-imapuser"
+            "extjs-app-imapuser",
+            "extjs-app-webmail"
         ]
     }
 }
 ```
-In order to properly intercept outgoing requests to the services as described in **conjoon/rest-api-description/rest-imap**,
-the package needs to be configured with a regular expression representing the urls to catch.
-The package is pre-configured so that it catches urls in the form of `https://php-ms-imapuser.ddev.site/rest-imap/api/v1/*`.
-A custom configuration can be placed in the resources-folder of the application using the package.
 
-The following is a snapshot of the configuration and not guaranteed to work in future versions. It should be used as
-an example - consult the `package.json` for an up to date configuration. 
-```json
-{
-    "mailAccount": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts(\/\\d+)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "mailFolder": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "attachment": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems\/(.+)\/Attachments(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "messageItem": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/MailAccounts\/(.+)\/MailFolders\/(.+)\/MessageItems(\/.*)?",
-        "enabled": true,
-        "delay": 250
-    },
-    "sendMessage": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-imap/api/v.*?/\/SendMessage(\/\\d+)?",
-        "enabled": true,
-        "delay": 250
-    }
-}
-```
-If this package is used in your environment, intercepting urls can be enabled/disabled by changing the property `enabled`
-to either `true` or `false`.
-<br>Please refer to the documentation of [extjs-lib-core](https://github.com/coon-js/extjs-lib-core) on how to
-create package-specific configurations.
+
+## Configuration and Usage
+For more information on how to configure and use the package, refer to the [documentation](./docs/README.md).
+
+## Tests
+Tests are written with [Siesta](https://bryntum.com/siesta). Documentation can be found [here](./tests/README.md).

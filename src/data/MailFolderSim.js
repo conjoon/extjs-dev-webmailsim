@@ -40,8 +40,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
             name: "MyStuff",
             unreadCount: 3787,
             folderType: "INBOX",
-            data: [],
-            mailAccountId: "dev_sys_conjoon_org"
+            mailAccountId: "dev_sys_conjoon_org",
+            data: [{
+                id: "INBOX.MyStuff.Deeper",
+                name: "Deeper",
+                unreadCount: 2,
+                data: [],
+                folderType: "INBOX",
+                mailAccountId: "dev_sys_conjoon_org"
+            }]
         }],
         mailAccountId: "dev_sys_conjoon_org"
     }, {
@@ -138,7 +145,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
                 ret[prop] = me[prop];
             }
         });
-        
+
         return ret;
     },
 
@@ -154,7 +161,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
 
         let pt = url.split("/"),
             mailAccountId;
-        
+
         pt.pop();
         mailAccountId = pt.pop();
 
