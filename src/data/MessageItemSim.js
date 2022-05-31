@@ -198,7 +198,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 result = MessageTable.updateMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, values);
             } else {
                 result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
-                result = Object.fromEntries(Object.entries(result).filter(([key, value]) => !!values[key]));
+                result = Object.fromEntries(Object.entries(result).filter((entry) => !!values[entry[0]]));
             }
 
             Ext.Array.forEach(me.responseProps, function (prop) {
