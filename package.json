@@ -15,8 +15,8 @@
     "toolkit": "classic",
     "creator": "Thorsten Suckow-Homberg <thorsten@suckow-homberg.de>",
     "summary": "Sencha Ext JS Dev Package for mocking backend requests and data for @conjoon/extjs-app-webmail.",
-    "version": "1.0.1",
-    "compatVersion": "1.0.1",
+    "version": "0.1.4",
+    "compatVersion": "0.1.4",
     "format": "1",
     "slicer": null,
     "fashion": null,
@@ -43,7 +43,7 @@
     ]
   },
   "description": "This Sencha Ext JS NPM package contains mock data for development of @conjoon/extjs-app-webmail]",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "index.js",
   "directories": {
     "test": "tests"
