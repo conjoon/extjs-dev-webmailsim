@@ -26,11 +26,16 @@
 /**
  *
  */
-Ext.define("conjoon.dev.cn_mailsim.data.table.MessageBodyFactory", {
+Ext.define("conjoon.dev.cn_mailsim.data.table.MessageFactory", {
 
     singleton: true,
 
     messages: null,
+    rawMessages: null,
+
+    requires: [
+        "coon.core.Environment"
+    ],
 
     getMessage (id) {
 
@@ -43,10 +48,30 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageBodyFactory", {
         if (!me.messages[id]) {
             me.messages[id] = Ext.Ajax.request({
                 async: false,
-                url: Ext.getResourcePath("resources/templates/email.html", null, "extjs-dev-webmailsim")
+                url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.html`, "extjs-dev-webmailsim")
             }).responseText;
         }
         return me.messages[id];
+    },
+
+
+    getRawMessage (id) {
+
+        const me = this;
+
+        if (!me.rawMessages) {
+            me.rawMessages = {};
+        }
+
+        if (!me.rawMessages[id]) {
+            me.rawMessages[id] = Ext.Ajax.request({
+                async: false,
+                url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.txt`, "extjs-dev-webmailsim")
+            }).responseText;
+        }
+
+
+        return me.rawMessages[id];
     }
 
 });

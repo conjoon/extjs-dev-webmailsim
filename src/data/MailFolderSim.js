@@ -36,19 +36,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
         unreadCount: 3787,
         folderType: "INBOX",
         data: [{
-            id: "INBOX.MyStuff",
-            name: "MyStuff",
-            unreadCount: 3787,
-            folderType: "INBOX",
-            mailAccountId: "dev_sys_conjoon_org",
-            data: [{
-                id: "INBOX.MyStuff.Deeper",
-                name: "Deeper",
-                unreadCount: 2,
-                data: [],
-                folderType: "INBOX",
-                mailAccountId: "dev_sys_conjoon_org"
-            }]
+            id: "INBOX.Today",
+            name: "Today",
+            unreadCount: 2,
+            data: [],
+            folderType: "FOLDER",
+            mailAccountId: "dev_sys_conjoon_org"
+        }, {
+            id: "INBOX.Last Week",
+            name: "Last Week",
+            data: [],
+            unreadCount: 0,
+            folderType: "FOLDER",
+            mailAccountId: "dev_sys_conjoon_org"
         }],
         mailAccountId: "dev_sys_conjoon_org"
     }, {

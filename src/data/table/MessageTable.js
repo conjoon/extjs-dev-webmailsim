@@ -31,7 +31,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
     singleton: true,
 
     requires: [
-        "conjoon.dev.cn_mailsim.data.table.AttachmentTable"
+        "conjoon.dev.cn_mailsim.data.table.AttachmentTable",
+        "conjoon.dev.cn_mailsim.data.table.MessageFactory"
     ],
 
 
@@ -50,6 +51,42 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
      * Increased with each new item generated.
      */
     recentId: 10000000,
+
+
+    /**
+     *
+     */
+    invokeMessageFactory () {
+        const
+            me = this,
+            MessageFactory = conjoon.dev.cn_mailsim.data.table.MessageFactory;
+
+
+        if (!me.messages) {
+            me.messages = [
+                MessageFactory.getMessage(1),
+                MessageFactory.getMessage(2),
+                MessageFactory.getMessage(3),
+                MessageFactory.getMessage(4),
+                MessageFactory.getMessage(5),
+                MessageFactory.getMessage(6)
+            ];
+        }
+
+        if (!me.rawMessages) {
+            me.rawMessages = [
+                MessageFactory.getRawMessage(1),
+                MessageFactory.getRawMessage(2),
+                MessageFactory.getRawMessage(3),
+                MessageFactory.getRawMessage(4),
+                MessageFactory.getRawMessage(5),
+                MessageFactory.getRawMessage(6)
+            ];
+        }
+
+
+    },
+
 
     /**
      *
@@ -107,11 +144,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
         }
 
         return [{
-            name: "Firstname Lastname" + type,
-            address: "name" + type + "@domain.tld"
+            name: "John Doe",
+            address: "john.doe@domain.tld"
         }, {
-            name: "Firstname 1 Lastname 2" + type,
-            address: "name1" + type + "@domain1.tld"
+            name: "Mary Tyler Moore",
+            address: "mr.ty.m@weezer.com"
         }];
     },
 
@@ -179,7 +216,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             Ext.raise("Unexpected missing arguments");
         }
 
-        const me = this,
+        const
+            me = this,
             message = me.getMessageBody(mailAccountId, mailFolderId, id);
 
         // swap
@@ -222,12 +260,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
         return message;
     },
 
-    messages: [
-        "<ul><li><img /><div style='background:black'>testmeclickyo</div>Blindtext <a href='mailto:dev@conjoon.org'><b> mail me @ conjoon</b></a> - Lorem <a href='http://www.conjoon.org'><b>conjoon</b></a> ipsum dolor sit amet, consectetuer adipiscing  elit. Aenean commodo ligula eget dolor. Aenean massa.</li><li>Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, <br />pretium quis, sem.</li> <li>Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.</li> <li>In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt.</li></ul>",
-        "<p>Text <a href='#'><b> mail me @ conjoon</b></a> here: Lorem ipsum dolor sit amet, <br />consectetuer <a href='http://www.conjoon.org'><b>conjoon</b></a> adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa <strong>strong</strong>. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, <br />aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede <a class=\"external ext\" href=\"#\">link</a> mollis pretium. Integer tincidunt. <br />Cras dapibus. Vivamus elementum semper nisi. Aenean vulputate eleifend tellus. Aenean leo ligula, <br />porttitor eu, consequat vitae, eleifend ac, enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue. Curabitur ullamcorper ultricies nisi.</p>",
-        "<blockquote><img />Following <a href='mailto:dev@conjoon.org'><b> mail me@conjoon.com</b></a> news! <a href='http://www.conjoon.org'><b>https://conjoon.org</b></a> Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa <strong>strong</strong>. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat <br />massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In <em>em</em> enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam <a class=\"external ext\" href=\"#\">link</a> dictum felis eu <br />pede mollis pretium. </blockquote>"
-    ],
-
     peekMessageBody: function (mailAccountId, mailFolderId, id) {
 
         const me = this;
@@ -249,6 +281,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             key = Ext.id(),
             message;
 
+        me.invokeMessageFactory();
+
 
         if (!me.messageBodies) {
             me.messageBodies = {};
@@ -269,14 +303,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             return null;
         }
 
-        message = this.messages[me.buildRandomNumber(0, 2)];
+        let mid =me.buildRandomNumber(0, me.messages.length - 1),
+            peekItem = me.getMessageItem(mailAccountId, mailFolderId, id, false);
+
+        if (peekItem && peekItem.subject && peekItem.subject.indexOf("eyeworkers") !== -1) {
+            mid = 5;
+        }
+        message = this.messages[mid];
 
         me.messageBodies[key] = {
             id: id,
             mailFolderId: mailFolderId,
             mailAccountId: mailAccountId,
             textHtml: message,
-            textPlain: Ext.util.Format.stripTags(message.replace(/<br \/>/g, "\n"))
+            textPlain: this.rawMessages[mid]
         };
 
         return me.messageBodies[key];
@@ -343,7 +383,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
 
         var me               = this,
             messageDrafts    = [],
-            baseMessageItems = me.buildBaseMessageItems();
+            baseMessageItems = me.buildBaseMessageItems(),
+            sender           = me.getSender();
 
         if (me.messageDrafts) {
             return me.messageDrafts;
@@ -360,7 +401,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             messageDrafts[Ext.id()] = Ext.apply({
                 bcc: bccAddresses,
                 replyTo: i !== 0 && me.buildRandomNumber(0, 1)
-                    ? me.getSender()[me.buildRandomNumber(0, 5)]
+                    ? sender[me.buildRandomNumber(0, sender.length - 1)]
                     : undefined
             }, baseMessageItems[i]);
 
@@ -669,13 +710,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
         return null;
     },
 
-    getMessageItem: function (mailAccountId, mailFolderId, id) {
+    getMessageItem: function (mailAccountId, mailFolderId, id, autoCreate = true) {
 
-        if (arguments.length !== 3) {
+        if (arguments.length < 3) {
             Ext.raise("Unexpected missing arguments");
         }
         var me    = this,
-            items = me.getMessageItems(),
+            items = autoCreate !== false ? me.getMessageItems() : (me.messageItems || []),
             found = null;
 
         for (var i in items) {
@@ -785,12 +826,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
      */
     getSender  () {
         return [
-            {address: "tsuckow@conjoon.org", name: "conjoonadmin"},
-            {address: "ts@siteartwork.de", name: "Booking.com"},
-            {address: "demo@conjoon.org",        name: "ebay Verkäufer Team"},
-            {address: "info@conjoon.org",  name: "MTB News"},
-            {address: "thorsten@suckow-homberg.de",     name: "Otto GmbH"},
-            {address: "admin@conjoon.org",      name: "Amazon"}
+            {address: "kontakt@eyeworkers.de",      name: "eyeworkers GmbH"},
+            {address: "tsuckow@conjoon.org",        name: "tsuckow@conjoon.org"},
+            {address: "ts@siteartwork.de",          name: "Thorsten"},
+            {address: "demo@conjoon.org",           name: "conjoon demo"},
+            {address: "info@conjoon.org",           name: "info@conjoon.org"},
+            {address: "thorsten@suckow-homberg.de", name: "ThorstenSuckow"}
         ];
     },
 
@@ -800,12 +841,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
      */
     getSubjects () {
         return [
-            "Welcome to conjoon",
-            "Re: Ihre Buchung in der Unterkunft",
-            "Achtung! DVBT Antennen sind bald nutzlos, Thorsten Suckow-Homberg",
-            "Verbindliche Bestellung Banshee Headbadge",
-            "Vielen Dank für Ihre Bestellung",
-            "Monte Walsh [Blu Ray] und mehr aus DVD & Blu Ray Klassiker"
+            "Die eyeworkers GmbH lädt Sie ein!",
+            "Come travel with us! 🏝️",
+            "🥡 The best food in town just got better! ",
+            "Have you ever thought of building React Native Apps? Now is the time!",
+            "Introducing: 10 tips to become a better Barista! ☕ Yum!",
+            "An instant classic: React Native Apps and why Docusaurus 🦖 rules. Roar! "
         ];
     },
 
@@ -829,25 +870,33 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
 
 
         let mailFolderId, mailAccountId = "dev_sys_conjoon_org", mailFolders = [
-            "INBOX",
-            "INBOX.Sent Messages",
-            "INBOX.Junk",
-            "INBOX.Drafts",
-            "INBOX.Trash"
-        ];
+                "INBOX",
+                "INBOX.Sent Messages",
+                "INBOX.Junk",
+                "INBOX.Drafts",
+                "INBOX.Trash"
+            ], subject, emailSender;
 
         for (var i = 0; i < me.ITEM_LENGTH; i++) {
 
             mailFolderId = mailFolders[i % 5];
 
+            subject = subjects[me.buildRandomNumber(0, subjects.length - 1)];
+
+            if (subject.indexOf("eyeworkers") !== -1) {
+                emailSender = sender[0];
+            } else {
+                emailSender = sender[me.buildRandomNumber(1, sender.length - 1)];
+            }
+
             let cfg = {
                 id: (i + 1) + "",
                 date: me.buildRandomDate(i < 100),
                 // leave first one as unread for tests
-                subject: /*mailFolderId + '-' + (i) + '-' +*/ subjects[me.buildRandomNumber(0, 5)],
+                subject: /*mailFolderId + '-' + (i) + '-' +*/ subject,
                 from: i === 0
-                    ? "from@domain.tld"
-                    : sender[me.buildRandomNumber(0, 5)],
+                    ? "john.smith@awesomewebsite.com"
+                    : emailSender,
                 to: me.buildAddresses("to", i),
                 cc: me.buildAddresses("cc", i),
                 mailFolderId: mailFolderId,
@@ -857,7 +906,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 seen: i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false),
                 draft: mailFolderId === "INBOX.Drafts"
                     ? true
-                    : i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false)
+                    : false
             };
 
 

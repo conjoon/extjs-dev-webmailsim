@@ -229,9 +229,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.AttachmentTable", {
         let attachmentNames = [
                 "IMG3701",
                 "documents",
-                "REPOSITORYPARTSTUFF_packed.type.full7897",
+                "Shipping Info",
                 "images",
-                "architecture_draft"
+                "document.draft"
             ],
             attachmentTypes = [
                 {type: "application/pdf", extension: "pdf"},
@@ -242,10 +242,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.AttachmentTable", {
             ],
             attachmentSizes = [
                 "24233",
-                "23532553253",
+                "323556",
                 "6588668",
                 "23434",
-                "46337773"
+                "463373"
             ], rec;
 
         if (!me.attachments) {
