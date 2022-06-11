@@ -33,28 +33,33 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
 
     getMockAccounts: () => [{
         id: "dev_sys_conjoon_org",
-        name: "conjoon developer",
-        from: {name: "John Smith", address: "dev@conjoon.org"},
-        replyTo: {name: "John Smith", address: "dev@conjoon.org"},
-        inbox_type: "IMAP",
-        inbox_address: "sfsffs.ffssf.sffs",
-        inbox_port: 993,
-        inbox_user: "inboxuser",
-        inbox_password: "inboxpassword",
-        inbox_ssl: true,
-        outbox_address: "sfsffs.ffssf.sffs",
-        outbox_port: 993,
-        outbox_user: "outboxuser",
-        outbox_password: "outboxpassword",
-        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
-
+        type: "MailAccount",
+        attributes: {
+            name: "conjoon developer",
+            from: {name: "John Smith", address: "dev@conjoon.org"},
+            replyTo: {name: "John Smith", address: "dev@conjoon.org"},
+            inbox_type: "IMAP",
+            inbox_address: "sfsffs.ffssf.sffs",
+            inbox_port: 993,
+            inbox_user: "inboxuser",
+            inbox_password: "inboxpassword",
+            inbox_ssl: true,
+            outbox_address: "sfsffs.ffssf.sffs",
+            outbox_port: 993,
+            outbox_user: "outboxuser",
+            outbox_password: "outboxpassword",
+            outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
+        }
     }, {
         id: "mail_account",
-        name: "google mail",
-        from: {name: "Peter Parker", address: "demo@googlemail.com"},
-        replyTo: {name: "Peter Parker", address: "demo@googlemail.com"},
-        inbox_type: "IMAP",
-        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
+        type: "MailAccount",
+        attributes: {
+            name: "google mail",
+            from: {name: "Peter Parker", address: "demo@googlemail.com"},
+            replyTo: {name: "Peter Parker", address: "demo@googlemail.com"},
+            inbox_type: "IMAP",
+            outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
+        }
     }],
 
 
@@ -66,7 +71,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
         let ret = {};
 
         ret.responseText = Ext.JSON.encode({
-            success: true,
             data: accounts
         });
 
@@ -93,12 +97,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
             id   = data.id,
             accounts = me.getMockAccounts();
 
+        Ext.Array.forEach(me.responseProps, function (prop) {
+            if (prop in me) {
+                ret[prop] = me[prop];
+            }
+        });
+
         if (data.name === "FAILURE") {
-
-            ret.responseText = Ext.JSON.encode({
-                success: false
-            });
-
+            ret.status = 401;
         } else {
 
             for (let i = 0, len = accounts.length; i < len; i++) {
@@ -114,16 +120,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
             }
 
             ret.responseText = Ext.JSON.encode({
-                success: true,
                 data: data
             });
         }
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
-        });
 
         return ret;
     }
