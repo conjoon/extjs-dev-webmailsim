@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -32,91 +32,164 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
     
     getMockFolder: () => [{
         id: "INBOX",
-        name: "Inbox",
-        unreadCount: 3787,
-        folderType: "INBOX",
-        data: [{
-            id: "INBOX.Today",
-            name: "Today",
-            unreadCount: 2,
-            data: [],
-            folderType: "FOLDER",
-            mailAccountId: "dev_sys_conjoon_org"
-        }, {
-            id: "INBOX.Last Week",
-            name: "Last Week",
-            data: [],
-            unreadCount: 0,
-            folderType: "FOLDER",
-            mailAccountId: "dev_sys_conjoon_org"
-        }],
-        mailAccountId: "dev_sys_conjoon_org"
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+        },
+        attributes: {
+            name: "Inbox",
+            unreadMessages: 3787,
+            totalMessages: 400,
+            folderType: "INBOX",
+            data: [{
+                type: "MailFolder",
+                id: "INBOX.Today",
+                relationships: {
+                    MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+                },
+                attributes: {
+                    name: "Today",
+                    unreadMessages: 2,
+                    totalMessages: 10,
+                    data: [],
+                    folderType: "FOLDER"
+                }
+            }, {
+                type: "MailFolder",
+                id: "INBOX.Last Week",
+                relationships: {
+                    MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+                },
+                attributes: {
+                    id: "INBOX.Last Week",
+                    name: "Last Week",
+                    data: [],
+                    unreadMessages: 0,
+                    totalMessages: 0,
+                    folderType: "FOLDER"
+                }
+
+            }]
+        }
     }, {
+        type: "MailFolder",
         id: "INBOX.Sent Messages",
-        name: "Sent",
-        unreadCount: 0,
-        folderType: "SENT",
-        data: [],
-        mailAccountId: "dev_sys_conjoon_org"
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+        },
+        attributes: {
+            name: "Sent",
+            unreadMessages: 5,
+            totalMessages: 10,
+            folderType: "SENT",
+            data: []
+        }
     }, {
+        type: "MailFolder",
         id: "INBOX.Junk",
-        name: "Junk",
-        unreadCount: 0,
-        folderType: "JUNK",
-        data: [],
-        mailAccountId: "dev_sys_conjoon_org"
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+        },
+        attributes: {
+            name: "Junk",
+            unreadMessages: 0,
+            totalMessages: 0,
+            folderType: "JUNK",
+            data: []
+        }
     }, {
+        type: "MailFolder",
         id: "INBOX.Drafts",
-        name: "Drafts",
-        unreadCount: 0,
-        folderType: "DRAFT",
-        data: [],
-        mailAccountId: "dev_sys_conjoon_org"
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+        },
+        attributes: {
+            name: "Drafts",
+            unreadMessages: 0,
+            totalMessages: 0,
+            folderType: "DRAFT",
+            data: []
+        }
     }, {
+        type: "MailFolder",
         id: "INBOX.Trash",
-        name: "Trash",
-        unreadCount: 5,
-        folderType: "TRASH",
-        data: [],
-        mailAccountId: "dev_sys_conjoon_org"
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "dev_sys_conjoon_org"}}
+        },
+        attributes: {
+            name: "Trash",
+            unreadMessages: 5,
+            totalMessages: 10,
+            folderType: "TRASH",
+            data: []
+        }
     },
     //////////////////////////////
     {
         id: "INBOX",
-        name: "Inbox",
-        unreadCount: 3787,
-        folderType: "INBOX",
-        data: [],
-        mailAccountId: "mail_account"
-
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "mail_account"}}
+        },
+        attributes: {
+            name: "Inbox",
+            unreadMessages: 3787,
+            totalMessages: 100032,
+            folderType: "INBOX",
+            data: []
+        }
     }, {
         id: "INBOX.Sent Messages",
-        name: "Sent",
-        unreadCount: 0,
-        folderType: "SENT",
-        data: [],
-        mailAccountId: "mail_account"
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "mail_account"}}
+        },
+        attributes: {
+            name: "Sent",
+            unreadMessages: 0,
+            totalMessages: 0,
+            folderType: "SENT",
+            data: []
+        }
     }, {
         id: "INBOX.Junk",
-        name: "Junk",
-        unreadCount: 0,
-        folderType: "JUNK",
-        data: [],
-        mailAccountId: "mail_account"
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "mail_account"}}
+        },
+        attributes: {
+            name: "Junk",
+            unreadMessages: 0,
+            totalMessages: 0,
+            folderType: "JUNK",
+            data: []
+        }
     }, {
         id: "INBOX.Drafts",
-        name: "Drafts",
-        unreadCount: 0,
-        folderType: "DRAFT",
-        data: [],
-        mailAccountId: "mail_account"
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "mail_account"}}
+        },
+        attributes: {
+            name: "Drafts",
+            unreadMessages: 0,
+            totalMessages: 0,
+            folderType: "DRAFT",
+            data: []
+        }
     }, {
         id: "INBOX.Trash",
-        name: "Trash",
-        unreadCount: 5,
-        folderType: "TRASH",
-        data: [],
-        mailAccountId: "mail_account"
+        type: "MailFolder",
+        relationships: {
+            MailAccounts: {data: {type: "MailAccount", id: "mail_account"}}
+        },
+        attributes: {
+            name: "Trash",
+            unreadMessages: 5,
+            totalMessages: 234,
+            folderType: "TRASH",
+            data: []
+        }
     }],
 
 
@@ -131,7 +204,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
         let mailFolders = Ext.Array.filter(
             me.getMockFolder(),
             function (item) {
-                return item.mailAccountId === "" + mailAccountId;
+                return item.relationships.MailAccounts.data.id === "" + mailAccountId;
             }
         );
 
