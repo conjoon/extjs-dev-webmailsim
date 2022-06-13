@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -33,6 +33,9 @@ StartTest(t => {
 
         MessageTable.ITEM_LENGTH = 5;
 
+        t.spyOn(coon.core.Environment, "getPathForResource").and.callFake(
+            (url, pckg) => `../../../../../../../../resources/${url}`
+        );
 
         t.beforeEach(function () {
             MessageTable.resetAll();
