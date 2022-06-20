@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -23,22 +23,25 @@
  * USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-export default [{
-    group: "universal",
-    items: [{
-        group: "app",
-        items: [
-            "src/app/PackageControllerTest.js"
+StartTest(t => {
 
-        ]
-    }, {
-        group: "data",
-        items: [{
-            group: "table",
-            items: [
-                "src/data/table/MailFolderTableTest.js",
-                "src/data/table/MessageTableTest.js"
-            ]
-        }]
-    }]
-}];
+
+    t.requireOk("conjoon.dev.cn_mailsim.data.table.MailFolderTable", function () {
+
+        const MailFolderTable = conjoon.dev.cn_mailsim.data.table.MailFolderTable;
+
+        t.it("get()", t => {
+
+            t.expect(MailFolderTable.get("mail_account", "INBOX.Drafts").id).toBe("INBOX.Drafts");
+
+            t.expect(MailFolderTable.get("dev_sys_conjoon_org", "INBOX.Last Week").attributes.folderType).toBe("FOLDER");
+
+            t.expect(MailFolderTable.get("dev_sys_conjoon_org", "INBOX.Last Week.Last Year")
+                .attributes.name).toBe("Last Week, but last year");
+
+        });
+
+
+    });});
+
+

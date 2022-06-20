@@ -296,7 +296,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ret = {},
             mailAccountId,
             mailFolderId,
-            fields = ctx.params.attributes ? ctx.params.attributes.split(",") : [],
+            fields = ctx.params["fields[MessageItem]"] ? ctx.params["fields[MessageItem]"].split(",") : [],
             messageItemIds = [];
 
         if (ctx.params.messageItemIds) {
@@ -334,7 +334,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
         }
 
-        if (ctx.params.attributes === "*,previewText,hasAttachments,size") {
+        if (ctx.params["fields[MessageItem]"] === "*,previewText,hasAttachments,size") {
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageDraft ", ctx.url);
@@ -400,6 +400,17 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return {data: item};
 
         } else if (!id) {
+
+            if (ctx.params["fields[MessageItem]"] !== "*,previewText,replyTo,cc,bcc" ||
+                ctx.params["fields[MailFolder]"] !== "unreadMessages,totalMessages" ||
+                ctx.params["include"] !== "MailFolder") {
+                throw new Error("sim expects GET MessageItems to include MailFolders relationship");
+            }
+            let keys = me.extractCompoundKey(ctx.url);
+
+            mailAccountId = keys.mailAccountId;
+            mailFolderId  = keys.mailFolderId;
+
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems ", ctx, keys);
             var items = [];
@@ -427,9 +438,17 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                     }
 
 
-                    items.push(messageItem);
+                    items.push(me.toJsonApi(messageItem, "MessageItem"));
                 }
             }
+
+            const MailFolderTable = conjoon.dev.cn_mailsim.data.table.MailFolderTable;
+            items = {
+                data: items,
+                included: [
+                    MailFolderTable.get(mailAccountId, mailFolderId)
+                ]
+            };
 
 
             /* eslint-disable-next-line no-console*/
@@ -437,15 +456,18 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             if (!ctx.xhr.options.proxy) {
                 // create a proxy mock so that rootProperty is applied to data
                 ctx.xhr.options.proxy = {
-                    getReader: () => ({
-                        getTotalProperty: () => "count",
-                        rootProperty: "data",
-                        getRootProperty: () => "data"
-                    })
+                    getReader: () => {
+                        return {
+                            getTotalProperty: () => "included[0].attributes.totalMessages",
+                            rootProperty: "data",
+                            getRootProperty: () => "data"
+                        };
+                    }
                 };
             }
 
             return items;
+
         } else {
             return messageItems;
         }
@@ -471,6 +493,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 me.extractCompoundKey(ctx.url).mailFolderId
             );
 
+        }
+
+        // GET MessageItems
+        if (ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.include === "MailFolder") {
+            let retVal = me.data(ctx), ret = {};
+            ret.responseText = Ext.JSON.encode(retVal);
+            Ext.Array.forEach(me.responseProps, function (prop) {
+                if (prop in me) {
+                    ret[prop] = me[prop];
+                }
+            });
+
+            return ret;
         }
 
         return me.callParent(arguments);
@@ -668,6 +703,32 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         });
 
         return ret;
+    },
+
+    toJsonApi (item, type) {
+
+        switch (type) {
+        case "MessageItem":
+            item = Object.assign({
+                type: "MessageItem",
+                id: item.id,
+                relationships: {
+                    MailFolder: {
+                        data: {
+                            id: item.mailFolderId,
+                            type: "MailFolder"
+                        }
+                    }
+                }
+            }, {
+                attributes: Object.fromEntries(Object.entries(item).filter(entry => {
+                    return !["mailFolderId", "mailAccountId", "id"].includes(entry[0]);
+                }))
+            });
+            break;
+        }
+
+        return item;
     }
 
 
