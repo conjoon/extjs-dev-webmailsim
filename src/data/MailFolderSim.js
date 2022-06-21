@@ -48,7 +48,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
         let mailFolders = Ext.Array.filter(
             me.getMockFolder(),
             function (item) {
-                return item.relationships.MailAccounts.data.id === "" + mailAccountId;
+                return item.relationships.MailAccount.data.id === "" + mailAccountId;
             }
         );
 
