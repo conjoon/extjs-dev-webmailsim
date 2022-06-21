@@ -46,10 +46,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageFactory", {
         }
 
         if (!me.messages[id]) {
-            me.messages[id] = Ext.Ajax.request({
-                async: false,
-                url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.html`, "extjs-dev-webmailsim")
-            }).responseText;
+            if (!coon.core.Environment.getVendorBase()) {
+                me.messages[id] = "No VendorBase configured.";
+            } else {
+                me.messages[id] = Ext.Ajax.request({
+                    async: false,
+                    url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.html`, "extjs-dev-webmailsim")
+                }).responseText;
+            }
         }
         return me.messages[id];
     },
@@ -64,10 +68,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageFactory", {
         }
 
         if (!me.rawMessages[id]) {
-            me.rawMessages[id] = Ext.Ajax.request({
-                async: false,
-                url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.txt`, "extjs-dev-webmailsim")
-            }).responseText;
+            if (!coon.core.Environment.getVendorBase()) {
+                me.rawMessages[id] = "No VendorBase configured.";
+            } else {
+                me.rawMessages[id] = Ext.Ajax.request({
+                    async: false,
+                    url: coon.core.Environment.getPathForResource(`resources/templates/email_${id}.txt`, "extjs-dev-webmailsim")
+                }).responseText;
+            }
         }
 
 
