@@ -44,7 +44,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         /* eslint-disable-next-line no-console*/
         console.log("DELETE MessageItem - ",keys);
 
-        let ret = {}, found = false,
+        let ret = me.prepareResponseHeader(), found = false,
             id = keys.id,
             mailAccountId = keys.mailAccountId,
             mailFolderId = keys.mailFolderId;
@@ -71,16 +71,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return {status: 404, success: false};
         }
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
-        });
+        ret.responseText = Ext.JSON.encode({success: "A"});
 
-        ret.responseText = Ext.JSON.encode({success: true});
-
-
-        Ext.apply(me, ret);
         return ret;
     },
 
@@ -120,12 +112,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         /* eslint-disable-next-line no-console*/
         console.log("POST MessageDraft - this should only happen in tests", ctx, ctx.xhr.options.jsonData);
 
-        var me            = this,
-            draft         = {},
-            ret           = {},
-            MessageTable  = conjoon.dev.cn_mailsim.data.table.MessageTable;
+        const
+            me         = this,
+            ret          = me.prepareResponseHeader(),
+            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        draft = me.extractValues(ctx.xhr.options.jsonData);
+        let draft = me.extractValues(ctx.xhr.options.jsonData);
 
         for (var i in draft) {
             if (i === "to" || i === "cc" || i === "bcc" || i === "replyTo") {
@@ -143,20 +135,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         draft = MessageTable.createMessageDraft(draft.mailAccountId, draft.mailFolderId, draft);
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
-        });
 
         ret.responseText = Ext.JSON.encode({
-            success: true,
-            data: {
+            included: [
+                me.getIncludedOrDummy(draft.mailAccountId, draft.mailFolderId)
+            ],
+            data: me.toJsonApi({
                 id: draft.id,
                 mailFolderId: draft.mailFolderId,
                 mailAccountId: draft.mailAccountId
-            }});
+            }, "MessageDraft")});
 
+        /* eslint-disable-next-line no-console*/
+        console.log("POST MessageDraft", ret);
         return ret;
 
     },
@@ -166,7 +157,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         var me           = this,
             keys         = me.extractCompoundKey(ctx.url),
-            ret          = {},
+            ret          = me.prepareResponseHeader(),
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
             values       = {},
             result,
@@ -201,17 +192,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 result = Object.fromEntries(Object.entries(result).filter((entry) => !!values[entry[0]]));
             }
 
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
-
             result.recent = false;
 
             let retVal = {
-                success: true,
-                data: result
+                included: [
+                    me.getIncludedOrDummy(result.mailAccountId, result.mailFolderId)
+                ],
+                data: me.toJsonApi(result, target)
             };
             ret.responseText = Ext.JSON.encode(retVal);
 
@@ -228,7 +215,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         // MESSAGE DRAFT
 
-        ret           = {};
+        ret           = me.prepareResponseHeader();
         MessageTable  = conjoon.dev.cn_mailsim.data.table.MessageTable;
         values        = {};
         keys          = me.extractCompoundKey(ctx.url);
@@ -243,7 +230,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return ret;
 
         }
-
         let updatedDraft = MessageTable.updateMessageDraft(
             keys.mailAccountId,
             keys.mailFolderId,
@@ -266,16 +252,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             }
         }
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
+        ret.responseText = Ext.JSON.encode({
+            included: [
+                me.getIncludedOrDummy(values.mailAccountId, values.mailFolderId)
+            ],
+            data: me.toJsonApi(values, "MessageDraft")
         });
 
-        ret.responseText = Ext.JSON.encode({
-            success: true,
-            data: values
-        });
 
         /* eslint-disable-next-line no-console*/
         console.log("PATCH MessageDraft, response: ", values);
@@ -293,7 +276,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             id,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
             messageItems = MessageTable.getMessageItems(),
-            ret = {},
             mailAccountId,
             mailFolderId,
             fields = ctx.params["fields[MessageItem]"] ? ctx.params["fields[MessageItem]"].split(",") : [],
@@ -302,6 +284,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         if (ctx.params.messageItemIds) {
             throw new Error("unexpected param messageItemIds");
         }
+
+        mailAccountId = keys.mailAccountId;
+        mailFolderId  = keys.mailFolderId;
+
 
         let idFilter = null;
         if (ctx.params.filter) {
@@ -329,9 +315,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         if (ctx.url.indexOf("/MessageBody") !== -1) {
 
+            let mb = me.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
+            if (mb.status && mb.status >= 400) {
+                return mb;
+            }
+
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageBody/MessageBodyDraft ", ctx.url, keys);
-            return this.getMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, true);
+            return {
+                included: [
+                    me.getIncludedOrDummy(mailAccountId, mailFolderId)
+                ],
+                data: mb
+            };
+
         }
 
         if (ctx.params["fields[MessageItem]"] === "*,previewText,hasAttachments,size") {
@@ -339,34 +336,25 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageDraft ", ctx.url);
 
-            let keys = me.extractCompoundKey(ctx.url);
-
-            mailAccountId = keys.mailAccountId;
-            mailFolderId  = keys.mailFolderId;
-            id            = keys.id;
+            id = keys.id;
 
             let fitem = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
-
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
 
             let retVal = null;
             if (!fitem) {
 
                 retVal = {
-                    success: false
+                    status: 404,
+                    statusText: "Not Found HEre"
                 };
-
-                //ret.status = "404";
                 //ret.statusText = "Not Found";
                 //return ret;
             } else {
                 retVal = {
-                    success: true,
-                    data: fitem
+                    included: [
+                        me.getIncludedOrDummy(mailAccountId, mailFolderId)
+                    ],
+                    data: me.toJsonApi(fitem, "MessageDraft")
                 };
             }
 
@@ -391,13 +379,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 }
             }
 
-            if (!item) {
-                return {status: 404, success: false};
-            }
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItem ", item);
-            return {data: item};
+
+            if (!item) {
+                return {status: 404, statusText: "Not Found"};
+            }
+
+            return {
+                included: [
+                    me.getIncludedOrDummy(mailAccountId, mailFolderId)
+                ],
+                data: me.toJsonApi(item, "MessageItem")
+            };
 
         } else if (!id) {
 
@@ -406,10 +401,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 ctx.params["include"] !== "MailFolder") {
                 throw new Error("sim expects GET MessageItems to include MailFolders relationship");
             }
-            let keys = me.extractCompoundKey(ctx.url);
-
-            mailAccountId = keys.mailAccountId;
-            mailFolderId  = keys.mailFolderId;
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageItems ", ctx, keys);
@@ -442,11 +433,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 }
             }
 
-            const MailFolderTable = conjoon.dev.cn_mailsim.data.table.MailFolderTable;
+            let mailFolder = me.getIncludedOrDummy(mailAccountId, mailFolderId);
+            mailFolder.attributes.totalMessages = items.length;
+
             items = {
                 data: items,
                 included: [
-                    MailFolderTable.get(mailAccountId, mailFolderId)
+                    mailFolder
                 ]
             };
 
@@ -496,23 +489,23 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         // GET MessageItems
-        if (ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.include === "MailFolder") {
-            let retVal = me.data(ctx), ret = {};
-            ret.responseText = Ext.JSON.encode(retVal);
-            Ext.Array.forEach(me.responseProps, function (prop) {
-                if (prop in me) {
-                    ret[prop] = me[prop];
-                }
-            });
+        //  if (ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.include === "MailFolder") {
+        let retVal = me.data(ctx), ret = me.prepareResponseHeader();
 
-            return ret;
+        if (retVal.status && retVal.status >= 400) {
+            return retVal;
         }
 
-        return me.callParent(arguments);
+        ret.responseText = Ext.JSON.encode(retVal);
+
+        return ret;
     },
 
 
     getMessageBody: function (mailAccountId, mailFolderId, id) {
+
+        const
+            me = this;
 
         let retVal;
 
@@ -522,12 +515,15 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             id
         )) {
 
-            retVal = {success: true, data: conjoon.dev.cn_mailsim.data.table.MessageTable
-                .getMessageBody(
-                    mailAccountId,
-                    mailFolderId,
-                    id
-                )};
+            retVal = me.toJsonApi(
+                conjoon.dev.cn_mailsim.data.table.MessageTable
+                    .getMessageBody(
+                        mailAccountId,
+                        mailFolderId,
+                        id
+                    ),
+                "MessageBody"
+            );
 
             let entity = "MessageBodyDraft/MessageBody";
 
@@ -537,7 +533,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return retVal;
         }
 
-        retVal = {success: false};
+        retVal = {status: 404};
 
         /* eslint-disable-next-line no-console*/
         console.log("GET MessageBody, response, ", retVal);
@@ -551,11 +547,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         /* eslint-disable-next-line no-console*/
         console.log("POST MessageBodyDraft", ctx.xhr.options.jsonData);
 
-        const MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+        const
+            me = this,
+            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        var me    = this,
-            body  = {},
-            ret   = {},
+        var body  = {},
+            ret   = me.prepareResponseHeader(),
             newRec;
 
         body = me.extractValues(ctx.xhr.options.jsonData);
@@ -574,19 +571,18 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             textHtml: body.textHtml
         });
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
-        });
-
-        let retVal = {success: true, data: {
-            id: newRec.id,
-            mailFolderId: newRec.mailFolderId,
-            mailAccountId: newRec.mailAccountId,
-            textPlain: newRec.textPlain,
-            textHtml: newRec.textHtml
-        }};
+        let retVal = {
+            included: [
+                me.getIncludedOrDummy(newRec.mailAccountId, newRec.mailFolderId)
+            ],
+            data: me.toJsonApi({
+                id: newRec.id,
+                mailFolderId: newRec.mailFolderId,
+                mailAccountId: newRec.mailAccountId,
+                textPlain: newRec.textPlain,
+                textHtml: newRec.textHtml
+            }, "MessageBody")
+        };
 
         ret.responseText = Ext.JSON.encode(retVal);
 
@@ -659,11 +655,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         /* eslint-disable-next-line no-console*/
         console.log("POST SendMessage", ctx.xhr.options);
 
-        const me              = this,
-            ret             = {},
-            MessageTable    = conjoon.dev.cn_mailsim.data.table.MessageTable;
-
         const
+            me           = this,
+            ret          = me.prepareResponseHeader(),
+            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
             key             = me.extractCompoundKey(ctx.url),
             id              = key.id,
             mailAccountId   = key.mailAccountId,
@@ -686,20 +681,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (draft.subject === "SENDFAIL") {
-            ret.responseText = Ext.JSON.encode({
-                success: false
-            });
+            ret.status = 500;
+            ret.statusText = "Internal Server Error";
             return ret;
         }
 
-        Ext.Array.forEach(me.responseProps, function (prop) {
-            if (prop in me) {
-                ret[prop] = me[prop];
-            }
-        });
-
         ret.responseText = Ext.JSON.encode({
-            success: true
         });
 
         return ret;
@@ -708,9 +695,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     toJsonApi (item, type) {
 
         switch (type) {
+        case "MessageBody":
+        case "MessageBodyDraft":
+        case "MessageDraft":
         case "MessageItem":
             item = Object.assign({
-                type: "MessageItem",
+                type: type,
                 id: item.id,
                 relationships: {
                     MailFolder: {
@@ -728,7 +718,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             break;
         }
 
+
         return item;
+    },
+
+    getIncludedOrDummy (mailAccountId, mailFolderId) {
+
+        const MailFolderTable = conjoon.dev.cn_mailsim.data.table.MailFolderTable;
+        return MailFolderTable.get(mailAccountId, mailFolderId) || MailFolderTable.createDummy(mailAccountId, mailFolderId);
+
+    },
+
+    prepareResponseHeader () {
+
+        return {status: 200, statusText: "OK"};
     }
 
 
