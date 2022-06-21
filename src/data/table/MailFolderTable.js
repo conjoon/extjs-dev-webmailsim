@@ -209,6 +209,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MailFolderTable", {
         }];
     },
 
+    createDummy (mailAccountId, mailFolderId) {
+        return {
+            id: mailFolderId,
+            type: "MailFolder",
+            relationships: {
+                MailAccount: {data: {type: "MailAccount", id: mailAccountId}}
+            },
+            attributes: {
+                name: "Dummy",
+                unreadMessages: 5,
+                totalMessages: 234,
+                folderType: "FOLDER",
+                data: []
+            }
+        };
+    },
 
     get (mailAccountId, mailFolderId) {
 
