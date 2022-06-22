@@ -396,7 +396,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         } else if (!id) {
 
-            if (ctx.params["fields[MessageItem]"] !== "*,previewText,replyTo,cc,bcc" ||
+            if (!ctx.params["fields[MessageItem]"] ||
                 ctx.params["fields[MailFolder]"] !== "unreadMessages,totalMessages" ||
                 ctx.params["include"] !== "MailFolder") {
                 throw new Error("sim expects GET MessageItems to include MailFolders relationship");
@@ -429,15 +429,19 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                     }
 
 
-                    items.push(me.toJsonApi(messageItem, "MessageItem"));
+                    items.push(messageItem);
                 }
             }
 
             let mailFolder = me.getIncludedOrDummy(mailAccountId, mailFolderId);
             mailFolder.attributes.totalMessages = items.length;
 
+            items = this.sortAndFilter(ctx, items);
+
+            items = items.map(item => me.toJsonApi(item, "MessageItem"));
+
             items = {
-                data: items,
+                data: this.getPage(ctx, items),
                 included: [
                     mailFolder
                 ]
@@ -451,7 +455,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 ctx.xhr.options.proxy = {
                     getReader: () => {
                         return {
-                            getTotalProperty: () => "included[0].attributes.totalMessages",
+                            getTotalProperty: () => items.length,
                             rootProperty: "data",
                             getRootProperty: () => "data"
                         };
@@ -732,6 +736,55 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     prepareResponseHeader () {
 
         return {status: 200, statusText: "OK"};
+    },
+
+    sortAndFilter (ctx, items) {
+
+        function makeSortFn (def, cmp) {
+
+            var order = def.direction,
+                sign = (order && order.toUpperCase() === "DESC") ? -1 : 1;
+            return function (leftRec, rightRec) {
+                var lhs = leftRec[def.property],
+                    rhs = rightRec[def.property],
+                    c = (lhs < rhs) ? -1 : ((rhs < lhs) ? 1 : 0);
+                if (c || !cmp) {
+                    return c * sign;
+                }
+                return cmp(leftRec, rightRec);
+            };
+        }
+        function makeSortFns (defs, cmp) {
+            var sortFn, i;
+            for (sortFn = cmp , i = defs && defs.length; i; ) {
+                sortFn = makeSortFn(defs[--i], sortFn);
+            }
+            return sortFn;
+        }
+
+        let fields = ctx.params.sort;
+        if (ctx.params.dir) {
+            fields = [
+                {
+                    direction: ctx.params.dir,
+                    property: fields
+                }
+            ];
+        } else {
+            fields = ctx.params.sort && Ext.decode(ctx.params.sort);
+        }
+        let sortFn = makeSortFns(fields);
+        if (sortFn) {
+            items = Ext.Array.sort(items, sortFn);
+        }
+
+        if (ctx.params.filter && Ext.decode(ctx.params.filter)) {
+            let filters = new Ext.util.FilterCollection();
+            filters.add(this.processFilters(Ext.decode(ctx.params.filter)));
+            items = Ext.Array.filter(items, filters.getFilterFn());
+        }
+
+        return items;
     }
 
 
