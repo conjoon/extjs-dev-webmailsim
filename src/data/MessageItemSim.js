@@ -34,6 +34,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
     ],
 
+    defaultIncludeQuery: {"params.include": "MailFolder", "params.fields[MailFolder]": ""},
+
     doDelete: function (ctx) {
 
         const me  = this,
@@ -109,27 +111,28 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         me.beginLog("POST", target, ctx, jsonData);
 
+
         const
-            ret          = me.prepareResponseHeader(),
+            ret          = me.prepareResponseHeader(ctx, me.defaultIncludeQuery),
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        let draft = me.extractValues(ctx.xhr.options.jsonData);
 
+        if (ret.status !== 200) {
+            return ret;
+        }
+        let draft = me.extractValues(ctx.xhr.options.jsonData);
         for (var i in draft) {
             if (i === "to" || i === "cc" || i === "bcc" || i === "replyTo") {
                 draft[i] = Ext.JSON.decode(draft[i]);
             }
         }
-
         if (draft.subject === "TESTFAIL") {
             ret.status = 400;
             ret.statusText = "Bad Request";
             me.endLog("POST", target, ret);
             return ret;
         }
-
         draft = MessageTable.createMessageDraft(draft.mailAccountId, draft.mailFolderId, draft);
-
         ret.responseText = Ext.JSON.encode({
             included: [
                 me.getIncludedOrDummy(draft.mailAccountId, draft.mailFolderId)
@@ -549,7 +552,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         me.beginLog("POST", "MessageBody", ctx, ctx.xhr.options.jsonData);
 
         var body  = {},
-            ret   = me.prepareResponseHeader(),
+            ret   = me.prepareResponseHeader(ctx, me.defaultIncludeQuery),
             newRec;
 
         body = me.extractValues(ctx.xhr.options.jsonData);
@@ -610,6 +613,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             jsonData.data,
             jsonData.data.attributes
         );
+
+        if (values.relationships && values.relationships.MailFolder) {
+            values.mailFolderId = values.relationships.MailFolder.data.id;
+            values.mailAccountId = jsonData.meta.included[0].relationships.MailAccount.data.id;
+            delete values.relationships;
+            delete values.meta;
+        }
 
         delete values.type;
         delete values.attributes;
@@ -736,9 +746,30 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     },
 
-    prepareResponseHeader () {
+    prepareResponseHeader (ctx, path) {
 
-        return {status: 200, statusText: "OK"};
+        let ret = {status: 200, statusText: "OK"};
+
+        if (!ctx && !path) {
+            return ret;
+        }
+        Object.entries(path).every((entry) => {
+
+            let path = entry[0], value = entry[1];
+
+            if (!l8.unchain(path, ctx) === value) {
+                ret = {
+                    status: 400,
+                    statusText: "Bad Request",
+                    responseText: JSON.stringify({
+                        errors: [{code: 400, title: "Bad Request", detail: `${path} is missing in request`}]
+                    })
+                };
+                return false;
+            }
+        });
+
+        return ret;
     },
 
     sortAndFilter (ctx, items) {
