@@ -79,7 +79,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     doPost: function (ctx) {
 
-        let target = ctx.params.target;
+        let target = ctx.params.type;
 
         if (!target) {
             /**
@@ -569,11 +569,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             body.textHtml = body.textPlain;
         }
 
-        let draft = MessageTable.createMessageDraft(body.mailAccountId, body.mailFolderId, {});
-        newRec = MessageTable.updateMessageBody(body.mailAccountId, body.mailFolderId, draft.id, {
-            textPlain: body.textPlain,
-            textHtml: body.textHtml
-        });
+        let draft;
+
+        // POSTed with meta data, references existing data
+        if (body.id) {
+            newRec = MessageTable.updateMessageBody(body.mailAccountId, body.mailFolderId, body.id, {
+                textPlain: body.textPlain,
+                textHtml: body.textHtml
+            });
+        } else {
+            draft = MessageTable.createMessageDraft(body.mailAccountId, body.mailFolderId, {});
+            newRec = MessageTable.updateMessageBody(body.mailAccountId, body.mailFolderId, draft.id, {
+                textPlain: body.textPlain,
+                textHtml: body.textHtml
+            });
+        }
+
 
         let retVal = {
             included: [
