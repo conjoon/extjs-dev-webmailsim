@@ -79,41 +79,37 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     doPost: function (ctx) {
 
-        let target = ctx.params.type;
+        const
+            me = this,
+            jsonData = ctx.xhr.options.jsonData;
+
+        let target;
+        if (jsonData) {
+            target = jsonData.data.type;
+        }
 
         if (!target) {
             /**
              * avoid /MessageItems - append query separator "?"
              */
-            if (ctx.url.indexOf("/MessageBody?") !== -1) {
-                target = "MessageBodyDraft";
-            } else if (ctx.url.indexOf("/MessageDraft?") !== -1) {
-                target = "MessageDraft";
-            } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
-                target = "MessageItem";
-            } else if (ctx.url.indexOf("/MessageItems/") !== -1) {
+            if (ctx.url.indexOf("/MessageItems/") !== -1) {
                 return this.sendMessage(ctx);
+            }
+
+            throw new Error("expected target with request");
+        }
+
+
+        if (target === "MessageBody") {
+            if (Object.keys(jsonData.data.attributes).includes("textHtml") ||
+                Object.keys(jsonData.data.attributes).includes("textPlain")) {
+                return this.postMessageBody(ctx);
             }
         }
 
-        if (target === "MessageItem") {
-            /* eslint-disable-next-line no-console*/
-            console.error("POSTing MessageItem - this should only happen in tests");
-            return;
-        }
-
-        if (Object.keys(ctx.xhr.options.jsonData.data.attributes).includes("textHtml") ||
-            Object.keys(ctx.xhr.options.jsonData.data.attributes).includes("textPlain")) {
-            return this.postMessageBody(ctx);
-        }
-
-
-        // MessageDraft
-        /* eslint-disable-next-line no-console*/
-        console.log("POST MessageDraft - this should only happen in tests", ctx, ctx.xhr.options.jsonData);
+        me.beginLog("POST", target, ctx, jsonData);
 
         const
-            me         = this,
             ret          = me.prepareResponseHeader(),
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
@@ -126,15 +122,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         if (draft.subject === "TESTFAIL") {
-            ret.status = 500;
-            ret.responseText = Ext.JSON.encode({
-                success: false
-            });
+            ret.status = 400;
+            ret.statusText = "Bad Request";
+            me.endLog("POST", target, ret);
             return ret;
         }
 
         draft = MessageTable.createMessageDraft(draft.mailAccountId, draft.mailFolderId, draft);
-
 
         ret.responseText = Ext.JSON.encode({
             included: [
@@ -147,7 +141,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             }, "MessageDraft")});
 
         /* eslint-disable-next-line no-console*/
-        console.log("POST MessageDraft", ret);
+        me.endLog("POST", target, ret);
         return ret;
 
     },
@@ -548,12 +542,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     postMessageBody: function (ctx) {
 
-        /* eslint-disable-next-line no-console*/
-        console.log("POST MessageBodyDraft", ctx.xhr.options.jsonData);
-
         const
             me = this,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+
+        me.beginLog("POST", "MessageBody", ctx, ctx.xhr.options.jsonData);
 
         var body  = {},
             ret   = me.prepareResponseHeader(),
@@ -601,8 +594,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         ret.responseText = Ext.JSON.encode(retVal);
 
-        /* eslint-disable-next-line no-console */
-        console.log("POSTED MessageBodyDraft", ctx.url, retVal);
+        me.endLog("POST", "MessageBody", ret);
+
         return ret;
     },
 
@@ -667,9 +660,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
      */
     sendMessage: function (ctx) {
 
-        /* eslint-disable-next-line no-console*/
-        console.log("POST SendMessage", ctx.xhr.options);
-
         const
             me           = this,
             ret          = me.prepareResponseHeader(),
@@ -680,6 +670,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             mailFolderId    = key.mailFolderId,
             draft           = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
 
+        me.beginLog("POST", "Send Message", ctx);
 
         if (draft.xCnDraftInfo) {
             let [accountId, folderId, id] = Ext.decode(atob(draft.xCnDraftInfo));
@@ -704,6 +695,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         ret.responseText = Ext.JSON.encode({
         });
 
+        me.endLog("POST", "Send Message", ret);
         return ret;
     },
 
@@ -796,6 +788,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         }
 
         return items;
+    },
+
+
+    beginLog (method, target) {
+        /* eslint-disable-next-line no-console*/
+        console.log("\n-------------\n----BEGIN----\n" + `${method} ${target}`, ... Array.prototype.slice.apply(arguments, [2]));
+
+    },
+
+    endLog (method, target) {
+        /* eslint-disable-next-line no-console*/
+        console.log(`${method} ${target}`, ... Array.prototype.slice.apply(arguments, [2]));
+        /* eslint-disable-next-line no-console*/
+        console.log("-------------\n-----END-----");
     }
 
 
