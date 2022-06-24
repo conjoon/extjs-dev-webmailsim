@@ -229,7 +229,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MailFolderTable", {
     get (mailAccountId, mailFolderId) {
 
         if (!mailAccountId || !mailFolderId) {
-            throw new Error("mailAccountId or mailFolderId must not be onitted");
+            throw new Error("mailAccountId or mailFolderId must not be omitted");
         }
 
         const
