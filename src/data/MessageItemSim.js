@@ -34,8 +34,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
     ],
 
-    defaultIncludeQuery: {"params.include": "MailFolder", "params.fields[MailFolder]": ""},
-
     doDelete: function (ctx) {
 
         const me  = this,
@@ -83,7 +81,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         const
             me = this,
-            jsonData = ctx.xhr.options.jsonData;
+            jsonData = ctx.xhr.options.jsonData,
+            keys = me.extractCompoundKey(ctx.url);
 
         let target;
         if (jsonData) {
@@ -113,7 +112,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
 
         const
-            ret          = me.prepareResponseHeader(ctx, me.defaultIncludeQuery),
+            ret          = me.prepareResponseHeader(ctx, me.getExpectedQuery("post.messageitem")),
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
 
@@ -132,7 +131,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             me.endLog("POST", target, ret);
             return ret;
         }
-        draft = MessageTable.createMessageDraft(draft.mailAccountId, draft.mailFolderId, draft);
+        draft = MessageTable.createMessageDraft(keys.mailAccountId, keys.mailFolderId, draft);
         ret.responseText = Ext.JSON.encode({
             included: [
                 me.getIncludedOrDummy(draft.mailAccountId, draft.mailFolderId)
@@ -152,37 +151,27 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
     doPatch: function (ctx) {
 
-        var me           = this,
+        const
+            me           = this,
             keys         = me.extractCompoundKey(ctx.url),
             ret          = me.prepareResponseHeader(),
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
-            values       = {},
-            result,
-            target = ctx.params.target;
+            values       = me.extractValues(ctx.xhr.options.jsonData),
+            target       = ctx.xhr.options.jsonData.data.type;
+
+        let result;
 
         if (!target) {
-            /**
-             * avoid /MessageItems - append query separator "?"
-             */
-            if (ctx.url.indexOf("/MessageBody?") !== -1) {
-                target = "MessageBodyDraft";
-            } else if (ctx.url.indexOf("/MessageDraft?") !== -1) {
-                target = "MessageDraft";
-            } else if (ctx.url.indexOf("/MessageItem?") !== -1) {
-                target = "MessageItem";
-            }
-
+            throw new Error("\type\" must be available in request body");
         }
 
-        if (["MessageBodyDraft", "MessageItem"].indexOf(target) !== -1) {
-            values = me.extractValues(ctx.xhr.options.jsonData);
 
+        if (Object.keys(values).filter(val => !["flagged", "id", "seen"].includes(val)).length === 0 ||
+            target === "MessageBody") {
 
-            /* eslint-disable-next-line no-console*/
-            console.log("PATCH " + target, values);
+            me.beginLog("PATCH", target, ctx, values);
 
-
-            if (target === "MessageBodyDraft") {
+            if (target === "MessageBody") {
                 result = MessageTable.updateMessageBody(keys.mailAccountId, keys.mailFolderId, keys.id, values);
             } else {
                 result = MessageTable.updateMessageItem(keys.mailAccountId, keys.mailFolderId, keys.id, values);
@@ -193,37 +182,26 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
             let retVal = {
                 included: [
-                    me.getIncludedOrDummy(result.mailAccountId, result.mailFolderId)
+                    me.getIncludedOrDummy(keys.mailAccountId, keys.mailFolderId)
                 ],
                 data: me.toJsonApi(result, target)
             };
             ret.responseText = Ext.JSON.encode(retVal);
 
-            /* eslint-disable-next-line no-console*/
-            console.log("PATCH " + target + ",", ctx.url, ", response: ", ret);
+            me.endLog("PATCH", target, ret);
 
             return ret;
         }
 
-
-        // This is where we trigger an idchange
-        /* eslint-disable-next-line no-console*/
-        console.log("PATCH MessageDraft", ctx.xhr.options.jsonData);
-
-        // MESSAGE DRAFT
-
-        ret           = me.prepareResponseHeader();
-        MessageTable  = conjoon.dev.cn_mailsim.data.table.MessageTable;
-        values        = {};
-        keys          = me.extractCompoundKey(ctx.url);
-
-        values = me.extractValues(ctx.xhr.options.jsonData);
+        me.beginLog("PATCH (idChange)", target, ctx, values);
 
         if (values.subject === "TESTFAIL") {
             ret.status = 500;
             ret.responseText = Ext.JSON.encode({
                 success: false
             });
+            me.endLog("PATCH (idChange)", target, ret);
+
             return ret;
 
         }
@@ -251,14 +229,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         ret.responseText = Ext.JSON.encode({
             included: [
-                me.getIncludedOrDummy(values.mailAccountId, values.mailFolderId)
+                me.getIncludedOrDummy(draft.mailAccountId, draft.mailFolderId)
             ],
             data: me.toJsonApi(values, "MessageDraft")
         });
 
-
-        /* eslint-disable-next-line no-console*/
-        console.log("PATCH MessageDraft, response: ", values);
+        me.endLog("PATCH (idChange)", target, ret);
 
         return ret;
 
@@ -547,12 +523,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         const
             me = this,
-            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+            MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable,
+            key = me.extractCompoundKey(ctx.url);
 
         me.beginLog("POST", "MessageBody", ctx, ctx.xhr.options.jsonData);
 
         var body  = {},
-            ret   = me.prepareResponseHeader(ctx, me.defaultIncludeQuery),
+            ret   = me.prepareResponseHeader(ctx, me.getExpectedQuery("post.messagebody")),
             newRec;
 
         body = me.extractValues(ctx.xhr.options.jsonData);
@@ -569,13 +546,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         // POSTed with meta data, references existing data
         if (body.id) {
-            newRec = MessageTable.updateMessageBody(body.mailAccountId, body.mailFolderId, body.id, {
+            newRec = MessageTable.updateMessageBody(key.mailAccountId, key.mailFolderId, body.id, {
                 textPlain: body.textPlain,
                 textHtml: body.textHtml
             });
         } else {
-            draft = MessageTable.createMessageDraft(body.mailAccountId, body.mailFolderId, {});
-            newRec = MessageTable.updateMessageBody(body.mailAccountId, body.mailFolderId, draft.id, {
+            draft = MessageTable.createMessageDraft(key.mailAccountId, key.mailFolderId, {});
+            newRec = MessageTable.updateMessageBody(key.mailAccountId, key.mailFolderId, draft.id, {
                 textPlain: body.textPlain,
                 textHtml: body.textHtml
             });
@@ -614,11 +591,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             jsonData.data.attributes
         );
 
+        delete values.mailFolderId;
+        delete values.mailAccountId;
+
         if (values.relationships && values.relationships.MailFolder) {
             values.mailFolderId = values.relationships.MailFolder.data.id;
-            values.mailAccountId = jsonData.meta.included[0].relationships.MailAccount.data.id;
             delete values.relationships;
-            delete values.meta;
         }
 
         delete values.type;
@@ -655,11 +633,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         pt.pop();
         mailAccountId = pt.pop();
 
-        return {
+        return Object.assign({
             mailAccountId: decodeURIComponent(mailAccountId),
-            mailFolderId: decodeURIComponent(mailFolderId),
-            id: id ? decodeURIComponent(id) : undefined
-        };
+            mailFolderId: decodeURIComponent(mailFolderId)
+        }, id ? {id: decodeURIComponent(id)} : {});
     },
 
 
@@ -833,6 +810,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         console.log(`${method} ${target}`, ... Array.prototype.slice.apply(arguments, [2]));
         /* eslint-disable-next-line no-console*/
         console.log("-------------\n-----END-----");
+    },
+
+
+    getExpectedQuery (type) {
+
+        switch (type) {
+
+        case "post.messagebody":
+        case "post.messageitem":
+            return {"params.include": "MailFolder", "params.fields[MailFolder]": ""};
+
+        default:
+            return {};
+
+        }
+
     }
 
 
