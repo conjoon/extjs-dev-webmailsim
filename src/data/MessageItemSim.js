@@ -93,7 +93,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             /**
              * avoid /MessageItems - append query separator "?"
              */
-            if (ctx.url.indexOf("/MessageItems/") !== -1) {
+            if (ctx.url.indexOf("/send") !== -1) {
                 return this.sendMessage(ctx);
             }
 
@@ -624,7 +624,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             pt.push("foo");
         }
 
-        if (["MessageBody", "MessageDraft", "MessageItem"].includes(id)) {
+        if (["MessageBody", "MessageDraft", "MessageItem", "send"].includes(id)) {
             id = pt.pop();
         }
 
