@@ -120,11 +120,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return ret;
         }
         let draft = me.extractValues(ctx.xhr.options.jsonData);
-        for (var i in draft) {
-            if (i === "to" || i === "cc" || i === "bcc" || i === "replyTo") {
-                draft[i] = Ext.JSON.decode(draft[i]);
-            }
-        }
+
+        ["from", "to", "cc", "bcc", "replyTo"].forEach(key => {
+            draft[key] && (draft[key] = Ext.JSON.decode(draft[key]));
+        });
+
         if (draft.subject === "TESTFAIL") {
             ret.status = 400;
             ret.statusText = "Bad Request";
