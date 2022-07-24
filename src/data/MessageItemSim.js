@@ -254,6 +254,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             fields = ctx.params["fields[MessageItem]"] ? ctx.params["fields[MessageItem]"].split(",") : [],
             messageItemIds = [];
 
+        // translate the parameters here since the Simlet works internally with default values,
+        // as it relies on "start" and "limit" to be available with params.start and params.limit
+        if (ctx.xhr.options.proxy) {
+            ctx.params.start = ctx.params[ctx.xhr.options.proxy.getStartParam()];
+            ctx.params.limit = ctx.params[ctx.xhr.options.proxy.getLimitParam()];
+        }
+
+
         if (ctx.params.messageItemIds) {
             throw new Error("unexpected param messageItemIds");
         }
@@ -773,17 +781,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return sortFn;
         }
 
-        let fields = ctx.params.sort;
-        if (ctx.params.dir) {
-            fields = [
-                {
-                    direction: ctx.params.dir,
-                    property: fields
-                }
-            ];
-        } else {
-            fields = ctx.params.sort && Ext.decode(ctx.params.sort);
-        }
+        let fields = ctx.params.sort ? ctx.params.sort.split(",") : [];
+
+        fields = fields.map( field => {
+            return {property: field.split("-").pop(), direction: field.indexOf("-") === 0 ? "DESC" : "ASC"};
+        });
+
         let sortFn = makeSortFns(fields);
         if (sortFn) {
             items = Ext.Array.sort(items, sortFn);
