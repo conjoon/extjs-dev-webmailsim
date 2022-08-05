@@ -272,7 +272,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         let idFilter = null;
         if (ctx.params.filter) {
-            idFilter = JSON.parse(ctx.params.filter);
+            idFilter = this.toExtJsFilter(JSON.parse(ctx.params.filter));
             if (idFilter) {
                 idFilter.some(filter => {
                     if (filter.property === "id") {
@@ -794,7 +794,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         if (ctx.params.filter && Ext.decode(ctx.params.filter)) {
             let filters = new Ext.util.FilterCollection();
-            filters.add(this.processFilters(Ext.decode(ctx.params.filter)));
+
+            const resFilters = this.toExtJsFilter(Ext.decode(ctx.params.filter));
+
+            filters.add(this.processFilters(resFilters));
             items = Ext.Array.filter(items, filters.getFilterFn());
         }
 
@@ -829,6 +832,38 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         }
 
+    },
+
+    /**
+     * Filters now available in polish notation:
+     * @example:
+     * {
+     *     "in": {
+     *         "id": [1, 2, 3]
+     *     }
+     * }
+     * @see php-lib-conjoon#8
+     *
+     * @return {Array}
+     */
+    toExtJsFilter (apiFiter) {
+
+        const resFilters = [];
+
+        Object.entries(apiFiter).forEach((filter) => {
+            const key = filter[0], value = filter[1];
+            if (["AND", "OR"].includes(key)) {
+                throw new Error("no support for logical operators available");
+            }
+
+            resFilters.push({
+                property: Object.entries(value)[0][0],
+                value: Object.entries(value)[0][1],
+                operator: key
+            });
+        });
+
+        return resFilters;
     }
 
 
