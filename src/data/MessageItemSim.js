@@ -251,8 +251,11 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             messageItems = MessageTable.getMessageItems(),
             mailAccountId,
             mailFolderId,
+            fieldsMailFolder = ctx.params["fields[MailFolder]"] !== undefined ? ctx.params["fields[MailFolder]"].split(",") : undefined,
+            fieldsMessageBody = ctx.params["fields[MessageBody]"] !== undefined  ? ctx.params["fields[MessageBody]"].split(",") : undefined,
             fields = ctx.params["fields[MessageItem]"] ? ctx.params["fields[MessageItem]"].split(",") : [],
-            messageItemIds = [];
+            messageItemIds = [],
+            relInclude =  ctx.params["include"] ? ctx.params["include"].split(",") : undefined;
 
         // translate the parameters here since the Simlet works internally with default values,
         // as it relies on "start" and "limit" to be available with params.start and params.limit
@@ -260,6 +263,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             ctx.params.start = ctx.params[ctx.xhr.options.proxy.getStartParam()];
             ctx.params.limit = ctx.params[ctx.xhr.options.proxy.getLimitParam()];
         }
+
+        fieldsMailFolder = fieldsMailFolder && fieldsMailFolder[0] === "" ? [] : fieldsMailFolder;
+        fieldsMessageBody = fieldsMessageBody && fieldsMessageBody[0] === "" ? [] : fieldsMessageBody;
 
 
         if (ctx.params.messageItemIds) {
@@ -291,6 +297,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             excludeFields = fields.filter(field => field !== "*");
         } else if (fields.length) {
             includeFields = ["mailAccountId", "mailFolderId", "id"].concat(fields);
+        } else {
+            includeFields = ["mailAccountId", "mailFolderId", "id"];
         }
 
 
@@ -376,15 +384,20 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             };
 
         } else if (!id) {
-
-            if (!ctx.params["fields[MessageItem]"] ||
-                ctx.params["fields[MailFolder]"] !== "unreadMessages,totalMessages" ||
-                ctx.params["include"] !== "MailFolder") {
+            // get data for either /MessageBodies or /MessageItems
+            if (ctx.params["fields[MailFolder]"] === undefined ||
+                (!relInclude || !relInclude.includes("MailFolder"))) {
                 throw new Error("sim expects GET MessageItems to include MailFolders relationship");
             }
 
+            let resourceTarget = "MessageItem";
+            if (ctx.url.indexOf("/MessageBodies") !== -1) {
+                resourceTarget = "MessageBody";
+            }
+
+
             /* eslint-disable-next-line no-console*/
-            console.log("GET MessageItems ", ctx, keys);
+            console.log(`GET ${resourceTarget} `, ctx, keys);
             var items = [];
             for (let i in messageItems) {
                 let messageItem = messageItems[i];
@@ -414,23 +427,63 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 }
             }
 
-            let mailFolder = me.getIncludedOrDummy(mailAccountId, mailFolderId);
-            mailFolder.attributes.totalMessages = items.length;
-
             items = this.sortAndFilter(ctx, items);
-
             items = items.map(item => me.toJsonApi(item, "MessageItem"));
 
+            let resourcePage = this.getPage(ctx, items);
+
+            let incs = [];
+
+            if (relInclude.includes("MailFolder")) {
+                let mailFolder = me.getIncludedOrDummy(mailAccountId, mailFolderId);
+                mailFolder.attributes.totalMessages = items.length;
+
+                if (fieldsMailFolder !== undefined && fieldsMailFolder.length === 0) {
+                    delete mailFolder.attributes;
+                } else {
+                    mailFolder.attributes = Object.fromEntries(
+                        Object.entries(mailFolder.attributes).filter(entry => {
+                            return fieldsMailFolder.includes(entry[0]) === true;
+                        })
+                    );
+                }
+                incs.push(mailFolder);
+            }
+
+            if (resourceTarget === "MessageBody" || relInclude.includes("MessageBody")) {
+                let messageBodies = [];
+                resourcePage.forEach(item => {
+                    let messageBody = me.toJsonApi(me.getIncludedOrDummy({
+                        entity: "MessageBody",
+                        mailAccountId: mailAccountId,
+                        mailFolderId: mailFolderId,
+                        id: item.id
+                    }), "MessageBody");
+
+                    if (fieldsMessageBody !== undefined && fieldsMailFolder.fieldsMessageBody === 0) {
+                        delete messageBody.attributes;
+                    }
+
+                    messageBodies.push(messageBody);
+                });
+
+                if (resourceTarget === "MessageBody") {
+                    resourcePage = messageBodies;
+                } else {
+                    incs = incs.concat(messageBodies);
+                }
+
+
+            }
+
             items = {
-                data: this.getPage(ctx, items),
-                included: [
-                    mailFolder
-                ]
+                data: resourcePage,
+                included: incs
             };
 
 
             /* eslint-disable-next-line no-console*/
-            console.log("GET MessageItems response", items);
+            console.log(`GET ${resourceTarget} response`, items);
             if (!ctx.xhr.options.proxy) {
                 // create a proxy mock so that rootProperty is applied to data
                 ctx.xhr.options.proxy = {
@@ -627,12 +680,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             id = pt.pop().split("?")[0],
             mailFolderId,mailAccountId;
 
-        if (id === "MessageItems") {
+        if (["MessageItems", "MessageBodies"].includes(id)) {
             id = undefined;
             pt.push("foo");
         }
 
-        if (["MessageBody", "MessageDraft", "MessageItem", "send"].includes(id)) {
+        if (["MessageBodies", "MessageBody", "MessageDraft", "MessageItem", "send"].includes(id)) {
             id = pt.pop();
         }
 
@@ -720,14 +773,43 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             break;
         }
 
+        if (type === "MessageItem") {
+            item.relationships.MessageBody = {
+                data: {id: item.id, type: "MessageBody"}
+            };
+        }
+
+        if (type === "MessageBody") {
+            item.relationships.MessageItem = {
+                data: {id: item.id, type: "MessageItem"}
+            };
+        }
 
         return item;
     },
 
     getIncludedOrDummy (mailAccountId, mailFolderId) {
 
+        if (typeof mailAccountId === "object") {
+
+            const
+                cfg = mailAccountId,
+                entity = cfg.entity,
+                MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+
+            switch (entity) {
+            case "MessageBody":
+                return MessageTable.getMessageBody(
+                    cfg.mailAccountId, cfg.mailFolderId, cfg.id
+                );
+            }
+
+            throw new Error("missing entity");
+        }
+
         const MailFolderTable = conjoon.dev.cn_mailsim.data.table.MailFolderTable;
         return MailFolderTable.get(mailAccountId, mailFolderId) || MailFolderTable.createDummy(mailAccountId, mailFolderId);
+
 
     },
 
@@ -862,6 +944,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                 operator: key
             });
         });
+
 
         return resFilters;
     }

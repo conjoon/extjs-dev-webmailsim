@@ -105,12 +105,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
         return me.buildRandomNumber(1, 10000000);
     },
 
-    buildPreviewText: function (mailAccountId, mailFolderId, id) {
-        var me = this;
-
-        let plain = me.getMessageBody(mailAccountId, mailFolderId, id).textPlain;
-        return plain ? plain.substring(0, 200) : "";
-    },
 
     buildRandomDate: function () {
         var me = this,
@@ -750,11 +744,6 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 if (!Object.prototype.hasOwnProperty.call(me.messageItems, i)) {
                     continue;
                 }
-                me.messageItems[i].previewText = me.buildPreviewText(
-                    me.messageItems[i].mailAccountId,
-                    me.messageItems[i].mailFolderId,
-                    me.messageItems[i].id
-                );
             }
 
             return me.messageItems;
@@ -769,12 +758,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                     baseMessageItems[i].mailFolderId,
                     baseMessageItems[i].id
                 ) ? 1 : 0,
-                size: me.buildRandomSizeInBytes(),
-                previewText: me.buildPreviewText(
-                    baseMessageItems[i].mailAccountId,
-                    baseMessageItems[i].mailFolderId,
-                    baseMessageItems[i].id
-                )
+                size: me.buildRandomSizeInBytes()
             }, baseMessageItems[i]);
         }
 
