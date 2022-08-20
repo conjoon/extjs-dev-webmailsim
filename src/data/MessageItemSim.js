@@ -457,7 +457,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
                         entity: "MessageBody",
                         mailAccountId: mailAccountId,
                         mailFolderId: mailFolderId,
-                        id: item.id
+                        id: item.id,
+                        params: ctx.params
                     }), "MessageBody");
 
                     if (fieldsMessageBody !== undefined && fieldsMailFolder.fieldsMessageBody === 0) {
@@ -795,13 +796,24 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             const
                 cfg = mailAccountId,
                 entity = cfg.entity,
+                params = cfg.params || {},
                 MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
+
+            let body;
 
             switch (entity) {
             case "MessageBody":
-                return MessageTable.getMessageBody(
+                body = MessageTable.getMessageBody(
                     cfg.mailAccountId, cfg.mailFolderId, cfg.id
                 );
+
+                if (params["options[textPlain][length]"]) {
+                    body.textPlain = body.textPlain.substr(0, params["options[textPlain][length]"]);
+                }
+                if (params["options[textPlain][textHtml]"]) {
+                    body.textHtml = body.textPlain.substr(0, params["options[textHtml][length]"]);
+                }
+                return body;
             }
 
             throw new Error("missing entity");
