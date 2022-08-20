@@ -5,7 +5,7 @@
         "delay": 250
     },
     "messageItem": {
-        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts/(.+)/MailFolders/(.+)/MessageItems(/.*)?",
+        "url": "https://php-ms-imapuser.ddev.site/rest-api-email/api/v.*?/MailAccounts/(.+)/MailFolders/(.+)/Message(Items|Bodies)(/.*)?",
         "enabled": true,
         "delay": 250
     },
