@@ -334,7 +334,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
                 retVal = {
                     status: 404,
-                    statusText: "Not Found HEre"
+                    statusText: "Not Found Here"
                 };
                 //ret.statusText = "Not Found";
                 //return ret;
