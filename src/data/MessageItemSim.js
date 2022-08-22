@@ -253,7 +253,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             mailFolderId,
             fieldsMailFolder = ctx.params["fields[MailFolder]"] !== undefined ? ctx.params["fields[MailFolder]"].split(",") : undefined,
             fieldsMessageBody = ctx.params["fields[MessageBody]"] !== undefined  ? ctx.params["fields[MessageBody]"].split(",") : undefined,
-            fields = ctx.params["fields[MessageItem]"] ? ctx.params["fields[MessageItem]"].split(",") : [],
+            fieldsMessageItem = ctx.params["fields[MessageItem]"] !== undefined ? ctx.params["fields[MessageItem]"].split(",") : undefined,
+            relfieldsMessageItem = ctx.params["relfield:fields[MessageItem]"] !== undefined ? ctx.params["relfield:fields[MessageItem]"].split(",") : undefined,
+
             messageItemIds = [],
             relInclude =  ctx.params["include"] ? ctx.params["include"].split(",") : undefined;
 
@@ -266,10 +268,14 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         fieldsMailFolder = fieldsMailFolder && fieldsMailFolder[0] === "" ? [] : fieldsMailFolder;
         fieldsMessageBody = fieldsMessageBody && fieldsMessageBody[0] === "" ? [] : fieldsMessageBody;
-
+        fieldsMessageItem = fieldsMessageItem && fieldsMessageItem[0] === "" ? [] : fieldsMessageItem;
 
         if (ctx.params.messageItemIds) {
             throw new Error("unexpected param messageItemIds");
+        }
+
+        if (relfieldsMessageItem && fieldsMessageItem) {
+            throw new Error("relfield extension not allowed to be used with same resource object");
         }
 
         mailAccountId = keys.mailAccountId;
@@ -292,13 +298,43 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         let excludeFields = [], includeFields = [];
 
-        //  * found, map excludeFields
-        if (fields.indexOf("*") !== -1) {
-            excludeFields = fields.filter(field => field !== "*");
-        } else if (fields.length) {
-            includeFields = ["mailAccountId", "mailFolderId", "id"].concat(fields);
-        } else {
-            includeFields = ["mailAccountId", "mailFolderId", "id"];
+        // sparse fieldsets / relfield extension support
+        let defaultMessageItemFields = Object.keys(Object.entries(messageItems)[0][1]).filter(field => !["cc", "bcc", "replyTo"].includes(field));
+
+        if (relfieldsMessageItem) {
+            let allPrefixed = relfieldsMessageItem.every(field => field.indexOf("+") === 0 || field.indexOf("-") === 0);
+            let allNotPrefixed = relfieldsMessageItem.every(field => field.indexOf("+") === -1 && field.indexOf("-") === -1);
+            if (allPrefixed !== true && allNotPrefixed !== true) {
+                throw new Error("relfield extension requires prefixes for all fields, or no prefixes at all");
+            }
+            if (allNotPrefixed) {
+                // no prefixed: assign relfields to regular sparse fieldsets, let processing continue
+                fieldsMessageItem = relfieldsMessageItem;
+            } else {
+                fieldsMessageItem = defaultMessageItemFields;
+                relfieldsMessageItem.forEach(field => {
+                    if (field.indexOf("+") === 0) {
+                        let f = field.substring(1);
+                        if (!fieldsMessageItem.includes(f)) {
+                            fieldsMessageItem.push(f);
+                        }
+                    }
+                    if (field.indexOf("-") === 0) {
+                        let f = field.substring(1);
+                        fieldsMessageItem = fieldsMessageItem.filter(field => field !== f);
+                    }
+                });
+            }
+        }
+
+        if (fieldsMessageItem) {
+            // fields[MessageItem]=&... -> exclude all
+            // fields[MessageItem]=subject -> exclude all except subject
+            excludeFields = defaultMessageItemFields.filter(
+                field => !fieldsMessageItem.concat(["mailAccountId", "mailFolderId", "id"]).includes(field)
+            );
+        } else if (!fieldsMessageItem) {
+            includeFields = defaultMessageItemFields;
         }
 
 
@@ -320,7 +356,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
         }
 
-        if (ctx.params["fields[MessageItem]"] === "*,previewText,hasAttachments,size") {
+        if (ctx.params["relfield:fields[MessageItem]"] === "+cc,+bcc,+replyTo,-hasAttachments,-size") {
 
             /* eslint-disable-next-line no-console*/
             console.log("GET MessageDraft ", ctx.url);
@@ -328,6 +364,10 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             id = keys.id;
 
             let fitem = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
+
+            fitem = Object.fromEntries(
+                Object.entries(fitem).filter(data => !fieldsMessageItem.includes(data[1])
+                ));
 
             let retVal = null;
             if (!fitem) {
