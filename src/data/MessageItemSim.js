@@ -365,9 +365,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
             let fitem = MessageTable.getMessageDraft(mailAccountId, mailFolderId, id);
 
-            fitem = Object.fromEntries(
-                Object.entries(fitem).filter(data => !fieldsMessageItem.includes(data[1])
-                ));
+            if (fitem) {
+                fitem = Object.fromEntries(
+                    Object.entries(fitem).filter(
+                        data => !fieldsMessageItem.includes(data[1])
+                    ));
+            }
 
             let retVal = null;
             if (!fitem) {
@@ -581,7 +584,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
     },
 
 
-    getMessageBody: function (mailAccountId, mailFolderId, id) {
+    getMessageBody: function (mailAccountId, mailFolderId, id, autoCreate) {
 
         const
             me = this;
@@ -612,7 +615,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             return retVal;
         }
 
-        retVal = {status: 404};
+        retVal = {status: 404, statusText: "Not found"};
 
         /* eslint-disable-next-line no-console*/
         console.log("GET MessageBody, response, ", retVal);
