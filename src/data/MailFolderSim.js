@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2021 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,8 +28,8 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
-    
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
+
     getMockFolder: () => [{
         id: "INBOX",
         name: "Inbox",
@@ -128,6 +128,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
 
         let ret = {};
 
+        /* eslint-disable-next-line no-console */
+        console.log("GET MailFolders", ctx);
+
         let mailFolders = Ext.Array.filter(
             me.getMockFolder(),
             function (item) {
@@ -159,14 +162,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
      */
     extractCompoundKey: function (url) {
 
+        const me = this;
+
         let pt = url.split("/"),
             mailAccountId;
 
         pt.pop();
-        mailAccountId = pt.pop();
+        mailAccountId = decodeURIComponent(pt.pop());
 
+        const path = this.uriToUrl(url).toString();
+        if (!path.endsWith("/MailAccounts")) {
+            if (me.matchAccountInfoForCurrentRequest(mailAccountId) !== true) {
+                throw new Error("mailAccountId url mismatch");
+            }
+        }
         return {
-            mailAccountId: decodeURIComponent(mailAccountId)
+            mailAccountId: mailAccountId
         };
     }
 

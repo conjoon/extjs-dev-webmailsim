@@ -28,8 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
-
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     getMockAccounts: () => [{
         id: "dev_sys_conjoon_org",

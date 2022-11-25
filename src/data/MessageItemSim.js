@@ -28,7 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     requires: [
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
@@ -606,8 +606,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         pt.pop();
         mailAccountId = pt.pop();
 
+        mailAccountId = decodeURIComponent(mailAccountId);
+        if (this.matchAccountInfoForCurrentRequest(mailAccountId) !== true) {
+            throw new Error("mailAccountId url/header mismatch");
+        }
+
         return {
-            mailAccountId: decodeURIComponent(mailAccountId),
+            mailAccountId: mailAccountId,
             mailFolderId: decodeURIComponent(mailFolderId),
             id: id ? decodeURIComponent(id) : undefined
         };
