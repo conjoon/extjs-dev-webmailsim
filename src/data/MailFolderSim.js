@@ -172,7 +172,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
 
         const path = this.uriToUrl(url).toString();
         if (!path.endsWith("/MailAccounts")) {
-            if (me.matchAccountInfoForCurrentRequest(mailAccountId) !== true) {
+            if (me.simletAdapter.validateMailAccountId(mailAccountId) !== true) {
                 throw new Error("mailAccountId url mismatch");
             }
         }

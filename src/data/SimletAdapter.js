@@ -24,53 +24,29 @@
  */
 
 /**
- * BaseSimlet.
+ * SimletAdapter.
  */
-Ext.define("conjoon.dev.cn_mailsim.data.EmailBaseSim", {
+Ext.define("conjoon.dev.cn_mailsim.data.SimletAdapter", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
-
-    inheritableStatics: {
-        require: {
-            simletAdapter: "conjoon.dev.cn_mailsim.data.SimletAdapter"
-        }
-    },
 
     /**
-     * @type {conjoon.dev.cn_mailsim.data.SimletAdapter} simletAdapter
-     * @private
+     * Template function to check whether the specified mailAccountId matches the
+     * information available with the request. Should be used to mock authorization,
+     * e.g. header-data containing account-information (url:port [SMTP/IMAP]).
+     *
+     * @param mailAccountId
+     *
+     * @return {Boolean} true if the mailAccountId for any request data  is valid.
      */
+    validateMailAccountId (mailAccountId) {
+        return true;
+    },
+
 
     /**
      *
-     * @param uri
-     * @returns {URL}
      */
-    uriToUrl (uri) {
-
-        let url;
-        try {
-            url = new URL(url);
-        } catch (e) {
-            url = new URL(url, window.location);
-        }
-
-        return url;
-    },
-
-
-    exec: function (xhr) {
-
-        const
-            me = this,
-            res = me.simletAdapter.validateRequest(xhr);
-
-        if (res !== null) {
-            return res;
-        }
-
-
-        return me.callParent(arguments);
+    validateRequest (xhr) {
+        return null;
     }
-
 });

@@ -607,7 +607,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         mailAccountId = pt.pop();
 
         mailAccountId = decodeURIComponent(mailAccountId);
-        if (this.matchAccountInfoForCurrentRequest(mailAccountId) !== true) {
+        if (this.simletAdapter.validateMailAccountId(mailAccountId) !== true) {
             throw new Error("mailAccountId url/header mismatch");
         }
 
