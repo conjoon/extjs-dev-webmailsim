@@ -31,7 +31,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.EmailBaseSim", {
     extend: "Ext.ux.ajax.JsonSimlet",
 
     inheritableStatics: {
-        require: {
+        required: {
             simletAdapter: "conjoon.dev.cn_mailsim.data.SimletAdapter"
         }
     },
@@ -40,6 +40,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.EmailBaseSim", {
      * @type {conjoon.dev.cn_mailsim.data.SimletAdapter} simletAdapter
      * @private
      */
+
 
     /**
      *
