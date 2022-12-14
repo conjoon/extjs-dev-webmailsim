@@ -83,13 +83,13 @@
     },
     "homepage": "https://github.com/conjoon/extjs-dev-webmailsim#readme",
     "dependencies": {
-        "@l8js/l8": "^0.8.0"
+        "@l8js/l8": "^0.8.0",
+        "@coon-js/extjs-lib-core": "^1.0.0"
     },
     "devDependencies": {
         "@commitlint/cli": "^13.2.0",
         "@commitlint/config-conventional": "^13.2.0",
         "@coon-js/delorean": "^0.3.1",
-        "@coon-js/extjs-lib-core": "^1.0.0",
         "@coon-js/extjs-link": "^0.1.10",
         "@coon-js/siesta-lib-helper": "^0.1.16",
         "eslint": "^7.28.0",
