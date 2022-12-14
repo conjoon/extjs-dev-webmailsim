@@ -2,3 +2,5 @@
 /.idea
 /node_modules
 /.extjs-link.conf.json
+/.deloreanbuild
+/package.json.delorean
