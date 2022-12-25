@@ -58,6 +58,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
 
 
     doGet: function (ctx) {
+
         const
             me = this,
             accounts = me.getMockAccounts();
@@ -83,7 +84,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
     },
 
 
-    doPut: function (ctx) {
+    doPatch: function (ctx) {
 
         const me = this;
 
