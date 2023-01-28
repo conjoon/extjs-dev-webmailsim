@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2023 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -45,7 +45,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
         outbox_port: 993,
         outbox_user: "outboxuser",
         outbox_password: "outboxpassword",
-        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
+        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0],
+        subscriptions: ["INBOX"]
 
     }, {
         id: "mail_account",
@@ -53,7 +54,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
         from: {name: "Peter Parker", address: "demo@googlemail.com"},
         replyTo: {name: "Peter Parker", address: "demo@googlemail.com"},
         inbox_type: "IMAP",
-        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
+        outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0],
+        subscriptions: ["INBOX", "[Gmail]"]
     }],
 
 
