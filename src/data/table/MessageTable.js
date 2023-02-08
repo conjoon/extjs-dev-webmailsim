@@ -869,7 +869,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             baseMessageItems = [];
 
 
-        let mailFolderId, mailAccountId = "dev_sys_conjoon_org", mailFolders = [
+        let mailFolderId, mailAccountId = ["dev_sys_conjoon_org", "mail_account"], mailFolders = [
                 "INBOX",
                 "INBOX.Sent Messages",
                 "INBOX.Junk",
@@ -900,7 +900,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 to: me.buildAddresses("to", i),
                 cc: me.buildAddresses("cc", i),
                 mailFolderId: mailFolderId,
-                mailAccountId: mailAccountId,
+                mailAccountId: i >= (me.ITEM_LENGTH / 2) ? mailAccountId[1] : mailAccountId[0],
                 testProp: i,
                 messageId: Ext.id(),
                 seen: i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false),
