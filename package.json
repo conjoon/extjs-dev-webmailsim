@@ -59,7 +59,7 @@
         "release:minor": "npm run preversion && standard-version --release-as minor && npm run postversion",
         "release:major": "npm run preversion && standard-version --release-as major && npm run postversion",
         "deps:prod:latest": "npm i -P @coon-js/extjs-lib-core @l8js/l8@latest",
-        "deps:dev:latest": "npm i -P @coon-js/delorean@latest",
+        "deps:dev:latest": "npm i -D @coon-js/delorean@latest",
         "update:package.json": "node bin/updatePackageJson.mjs"
     },
     "standard-version": {
