@@ -28,17 +28,31 @@ StartTest(t => {
 
     t.requireOk("conjoon.dev.cn_mailsim.data.table.MessageTable", function () {
 
-        const MessageTable    = conjoon.dev.cn_mailsim.data.table.MessageTable,
+        const
+            MessageTable    = conjoon.dev.cn_mailsim.data.table.MessageTable,
             AttachmentTable = conjoon.dev.cn_mailsim.data.table.AttachmentTable;
 
         MessageTable.ITEM_LENGTH = 5;
 
+        let environmentSpy;
         t.spyOn(coon.core.Environment, "getPathForResource").and.callFake(
             (url, pckg) => `../../../../../../../../resources/${url}`
         );
 
-        t.beforeEach(function () {
+
+        t.beforeEach(() => {
+
             MessageTable.resetAll();
+
+            environmentSpy = t.spyOn(coon.core.Environment, "getPathForResource").and.callFake(
+                (resource, pckg) => "path"
+
+            );
+
+        });
+
+        t.afterEach(() => {
+            environmentSpy.remove();
         });
 
 

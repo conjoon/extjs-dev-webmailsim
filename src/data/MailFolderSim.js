@@ -28,7 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     requires: [
         "conjoon.dev.cn_mailsim.data.table.MailFolderTable"
@@ -44,6 +44,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
             mailAccountId = keys.mailAccountId;
 
         let ret = {};
+
+        /* eslint-disable-next-line no-console */
+        console.log("GET MailFolders", ctx);
 
         let mailFolders = Ext.Array.filter(
             me.getMockFolder(),
@@ -76,14 +79,22 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailFolderSim", {
      */
     extractCompoundKey: function (url) {
 
+        const me = this;
+
         let pt = url.split("/"),
             mailAccountId;
 
         pt.pop();
-        mailAccountId = pt.pop();
+        mailAccountId = decodeURIComponent(pt.pop());
 
+        const path = this.uriToUrl(url).toString();
+        if (!path.endsWith("/MailAccounts")) {
+            if (me.simletAdapter.validateMailAccountId(mailAccountId) !== true) {
+                throw new Error("mailAccountId url mismatch");
+            }
+        }
         return {
-            mailAccountId: decodeURIComponent(mailAccountId)
+            mailAccountId: mailAccountId
         };
     }
 

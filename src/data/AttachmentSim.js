@@ -28,7 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     requires: [
         "conjoon.dev.cn_mailsim.data.table.AttachmentTable",
@@ -215,8 +215,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.AttachmentSim", {
         mailAccountId = pt.pop();
         mailAccountId = pt.pop();
 
+        mailAccountId = decodeURIComponent(mailAccountId);
+        if (this.simletAdapter.validateMailAccountId(mailAccountId) !== true) {
+            throw new Error("mailAccountId url/header mismatch");
+        }
+
         return {
-            mailAccountId: decodeURIComponent(mailAccountId),
+            mailAccountId: mailAccountId,
             mailFolderId: decodeURIComponent(mailFolderId),
             parentMessageItemId: decodeURIComponent(parentMessageItemId),
             id: id ? decodeURIComponent(id) : undefined

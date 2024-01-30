@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2020-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2020-2023 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,7 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     requires: [
         "conjoon.dev.cn_mailsim.data.table.MessageTable"
@@ -562,7 +562,8 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
             me = this,
             MessageTable = conjoon.dev.cn_mailsim.data.table.MessageTable;
 
-        if (ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.filter) {
+        if (MessageTable.buildRandomNumber(0, 1) === 1 &&
+            ctx.url.indexOf("/MessageItems?") !== -1 && ctx.params.filter) {
             MessageTable.addRecentItems(
                 MessageTable.buildRandomNumber(0, 2),
                 me.extractCompoundKey(ctx.url).mailFolderId
@@ -738,8 +739,13 @@ Ext.define("conjoon.dev.cn_mailsim.data.MessageItemSim", {
         pt.pop();
         mailAccountId = pt.pop();
 
+        mailAccountId = decodeURIComponent(mailAccountId);
+        if (this.simletAdapter.validateMailAccountId(mailAccountId) !== true) {
+            throw new Error("mailAccountId url/header mismatch");
+        }
+
         return Object.assign({
-            mailAccountId: decodeURIComponent(mailAccountId),
+            mailAccountId: mailAccountId,
             mailFolderId: decodeURIComponent(mailFolderId)
         }, id ? {id: decodeURIComponent(id)} : {});
     },

@@ -697,6 +697,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
         let o = 0;
         for (var i in messageItems) {
             if (o++ === pos) {
+                if (messageItems[i]) {
+                    this.getMessageBody(messageItems[i].mailAccountId, messageItems[i].mailFolderId, messageItems[i].id);
+                }
                 return messageItems[i];
             }
         }
@@ -725,6 +728,9 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             }
         }
 
+        if (found && autoCreate) {
+            this.getMessageBody(found.mailAccountId, found.mailFolderId, found.id);
+        }
         return found;
     },
 
@@ -760,6 +766,12 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 ) ? 1 : 0,
                 size: me.buildRandomSizeInBytes()
             }, baseMessageItems[i]);
+
+            this.getMessageBody(baseMessageItems[i].mailAccountId,
+                baseMessageItems[i].mailFolderId,
+                baseMessageItems[i].id
+            );
+
         }
 
         me.messageItems = messageItems;
@@ -853,7 +865,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
             baseMessageItems = [];
 
 
-        let mailFolderId, mailAccountId = "dev_sys_conjoon_org", mailFolders = [
+        let mailFolderId, mailAccountId = ["dev_sys_conjoon_org", "mail_account"], mailFolders = [
                 "INBOX",
                 "INBOX.Sent Messages",
                 "INBOX.Junk",
@@ -884,7 +896,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.table.MessageTable", {
                 to: me.buildAddresses("to", i),
                 cc: me.buildAddresses("cc", i),
                 mailFolderId: mailFolderId,
-                mailAccountId: mailAccountId,
+                mailAccountId: i >= (me.ITEM_LENGTH / 2) ? mailAccountId[1] : mailAccountId[0],
                 testProp: i,
                 messageId: Ext.id(),
                 seen: i === 0 ? false : (me.buildRandomNumber(0, 1) ? true : false),

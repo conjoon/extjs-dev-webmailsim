@@ -2,6 +2,27 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.5](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.4...v1.0.5) (2023-02-26)
+
+### [1.0.4](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.3...v1.0.4) (2023-02-17)
+
+
+### Bug Fixes
+
+* **build:** wrong flag for devDependencies in pre-release script ([ea795af](https://github.com/conjoon/extjs-dev-webmailsim/commit/ea795af2d3ae17f7bc2a2accdc02ef8720d554aa))
+
+### [1.0.3](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.2...v1.0.3) (2023-02-17)
+
+### [1.0.2](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.1...v1.0.2) (2023-02-08)
+
+### [1.0.1](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.0...v1.0.1) (2023-01-28)
+
+## [1.0.0](https://github.com/conjoon/extjs-dev-webmailsim/compare/v0.1.6...v1.0.0) (2023-01-28)
+
+### [0.1.6](https://github.com/conjoon/extjs-dev-webmailsim/compare/v0.1.5...v0.1.6) (2022-12-14)
+
+### [0.1.5](https://github.com/conjoon/extjs-dev-webmailsim/compare/v0.1.4...v0.1.5) (2022-12-14)
+
 ### [0.1.4](https://github.com/conjoon/extjs-dev-webmailsim/compare/v0.1.3...v0.1.4) (2022-06-01)
 
 ### [0.1.3](https://github.com/conjoon/extjs-dev-webmailsim/compare/v0.1.2...v0.1.3) (2022-05-31)

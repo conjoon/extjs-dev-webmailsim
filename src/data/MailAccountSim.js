@@ -1,7 +1,7 @@
 /**
  * conjoon
  * extjs-dev-webmailsim
- * Copyright (C) 2019-2022 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
+ * Copyright (C) 2019-2023 Thorsten Suckow-Homberg https://github.com/conjoon/extjs-dev-webmailsim
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -28,8 +28,7 @@
  */
 Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
 
-    extend: "Ext.ux.ajax.JsonSimlet",
-
+    extend: "conjoon.dev.cn_mailsim.data.EmailBaseSim",
 
     getMockAccounts: () => [{
         id: "dev_sys_conjoon_org",
@@ -64,6 +63,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
 
 
     doGet: function (ctx) {
+
         const
             me = this,
             accounts = me.getMockAccounts();
@@ -88,7 +88,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
     },
 
 
-    doPut: function (ctx) {
+    doPatch: function (ctx) {
 
         const me = this;
 
