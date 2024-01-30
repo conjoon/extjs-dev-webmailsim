@@ -15,8 +15,8 @@
         "toolkit": "classic",
         "creator": "Thorsten Suckow-Homberg <thorsten@suckow-homberg.de>",
         "summary": "Sencha Ext JS Dev Package for mocking backend requests and data for @conjoon/extjs-app-webmail.",
-        "version": "2.0.0",
-        "compatVersion": "2.0.0",
+        "version": "1.0.5",
+        "compatVersion": "1.0.5",
         "format": "1",
         "slicer": null,
         "fashion": null,
@@ -43,7 +43,7 @@
         ]
     },
     "description": "This Sencha Ext JS NPM package contains mock data for development of @conjoon/extjs-app-webmail]",
-    "version": "2.0.0",
+    "version": "1.0.5",
     "main": "index.js",
     "directories": {
         "test": "tests"
@@ -58,7 +58,7 @@
         "release:patch": "npm run preversion && standard-version --release-as patch && npm run postversion",
         "release:minor": "npm run preversion && standard-version --release-as minor && npm run postversion",
         "release:major": "npm run preversion && standard-version --release-as major && npm run postversion",
-        "deps:prod:latest": "npm i -P @coon-js/extjs-lib-core@latest @l8js/l8@latest",
+        "deps:prod:latest": "npm i -P @coon-js/extjs-lib-core @l8js/l8@latest",
         "deps:dev:latest": "npm i -D @coon-js/delorean@latest",
         "update:package.json": "node bin/updatePackageJson.mjs"
     },
@@ -92,13 +92,13 @@
     },
     "homepage": "https://github.com/conjoon/extjs-dev-webmailsim#readme",
     "dependencies": {
-        "@coon-js/extjs-lib-core": "^1.1.1",
-        "@l8js/l8": "^0.12.1"
+        "@coon-js/extjs-lib-core": "^1.0.5",
+        "@l8js/l8": "^0.10.2"
     },
     "devDependencies": {
         "@commitlint/cli": "^13.2.0",
         "@commitlint/config-conventional": "^13.2.0",
-        "@coon-js/delorean": "^0.3.4",
+        "@coon-js/delorean": "^0.3.3",
         "@coon-js/extjs-link": "^0.1.10",
         "@coon-js/siesta-lib-helper": "^0.1.16",
         "eslint": "^7.28.0",
