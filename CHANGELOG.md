@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.0.0](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.5...v2.0.0) (2024-01-30)
+
+
+### Bug Fixes
+
+* from-address is not decoded when saving to mock data ([e45f9bf](https://github.com/conjoon/extjs-dev-webmailsim/commit/e45f9bfb9f9714fe3b87ac967632e29e0c2c3cf8))
+* simlet throws error if message draft is not found ([7fdf5c9](https://github.com/conjoon/extjs-dev-webmailsim/commit/7fdf5c97a80185fadbb9de165e060058ef622e09)), closes [conjoon/php-lib-conjoon#8](https://github.com/conjoon/php-lib-conjoon/issues/8)
+* **tests:** regression bug due to added email templates for conjoon v1.0.0 ([bac1c0b](https://github.com/conjoon/extjs-dev-webmailsim/commit/bac1c0b11ef73dd443cda2e6a1b9579bae9dd805))
+
 ### [1.0.5](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.4...v1.0.5) (2023-02-26)
 
 ### [1.0.4](https://github.com/conjoon/extjs-dev-webmailsim/compare/v1.0.3...v1.0.4) (2023-02-17)
