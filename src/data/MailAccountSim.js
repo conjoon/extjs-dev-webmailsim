@@ -47,6 +47,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
             outbox_port: 993,
             outbox_user: "outboxuser",
             outbox_password: "outboxpassword",
+            subscriptions: [],
             outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
         }
     }, {
@@ -57,6 +58,7 @@ Ext.define("conjoon.dev.cn_mailsim.data.MailAccountSim", {
             from: {name: "Peter Parker", address: "demo@googlemail.com"},
             replyTo: {name: "Peter Parker", address: "demo@googlemail.com"},
             inbox_type: "IMAP",
+            subscriptions: [],
             outbox_secure: ["tls", "ssl"][Math.floor(Math.random() * (1 - 0 + 1)) + 0]
         }
     }],
